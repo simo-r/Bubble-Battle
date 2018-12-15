@@ -26,7 +26,7 @@ function renderLoop() {
         mGame.updateCanvas();*/
     //}
     mGame.gameLoop();
-    console.log("RENDER LOOP");
+    //console.log("RENDER LOOP");
     requestAnimationFrame(renderLoop);
 }
 

@@ -9,7 +9,7 @@ html, body {
     overflow: hidden;
 }
 
-#myCanvy {
+#bbCanvas {
     position: absolute;
     margin: 0;
     cursor: default;
