@@ -15,10 +15,10 @@ class BackgroundComponent {
         return new BackgroundComponent(x, y, bgImage);
     }
 
-    move() {
+    move(speedX,speedY) {
         //console.log("SPEED X" + this.speedX);
-        this.x -= this.speedX;
-        this.y -= this.speedY;
+        this.x -= speedX;
+        this.y -= speedY;
     }
 
     draw(ctx) {
@@ -34,36 +34,6 @@ class BackgroundComponent {
         if(rightBound > 0) return 1;
         return false;
     }
-
-    slowDownX(acceleration) {
-        if (this.speedX > 0) {
-            if ((this.speedX -= acceleration) < 0) {
-                this.speedX = 0;
-            }
-        } else if (this.speedX < 0) {
-            if ((this.speedX += acceleration) > 0) {
-                this.speedX = 0;
-            }
-        }
-    }
-
-    moveLeft(acceleration, maxSpeed) {
-        if (this.speedX !== -maxSpeed) {
-            this.speedX -= acceleration;
-            if (this.speedX < -(maxSpeed)) {
-                this.speedX = -(maxSpeed);
-            }
-        }
-    }
-    
-    moveRight(acceleration,maxSpeed){
-        if(this.speedX !== maxSpeed){
-            this.speedX += acceleration;
-            if(this.speedX > maxSpeed){
-                this.speedX = maxSpeed;
-            }
-        }
-    }
     
     /* Y BOUNDS */
     
@@ -73,36 +43,6 @@ class BackgroundComponent {
         if(topBound < 0) return -1;
         if(downBound > 0) return 1;
         return false;
-    }
-    
-    slowDownY(acceleration) {
-        if (this.speedY > 0) {
-            if ((this.speedY -= acceleration) < 0) {
-                this.speedY = 0;
-            }
-        } else if (this.speedY < 0) {
-            if ((this.speedY += acceleration) > 0) {
-                this.speedY = 0;
-            }
-        }
-    }
-
-    moveUp(acceleration, maxSpeed) {
-        if (this.speedY !== -maxSpeed) {
-            this.speedY -= acceleration;
-            if (this.speedY < -(maxSpeed)) {
-                this.speedY = -(maxSpeed);
-            }
-        }
-    }
-    
-    moveDown(acceleration,maxSpeed){
-        if(this.speedY !== maxSpeed){
-            this.speedY += acceleration;
-            if(this.speedY > maxSpeed){
-                this.speedY = maxSpeed;
-            }
-        }
     }
     
     get gameWidth(){

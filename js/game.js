@@ -25,8 +25,9 @@ class Game {
         let topOffset = getRandomInteger(canvasHalfHeight + radius - gameHeight, canvasHalfHeight - radius);
         this.mBackground = BackgroundComponent.createBackground(leftOffset, topOffset, background);
         //let bgCallback = this.mBackground.getBubbleCallbacks();
-        this.mBubble = UserBubble.createUserBubble(canvasHalfWidth, canvasHalfHeight, radius, getRandomColor(), this.mBackground);
-        this.spawnBubble();
+        this.mBubble = UserBubble.createUserBubble(canvasHalfWidth, canvasHalfHeight, radius, 0,0,getRandomColor(), this.mBackground);
+        for (let i = 0; i < 100; i++)
+            this.spawnBubble();
         console.log("BACKGROUND X " + leftOffset + " BACKGROUND Y " + topOffset);
     }
 
@@ -53,7 +54,7 @@ class Game {
 
     move() {
         this.mBubble.move();
-        this.mBackground.move();
+        //this.mBackground.move();
         this.mBubbleArr.forEach(v => v.move());
     }
 
@@ -67,15 +68,17 @@ class Game {
     spawnBubble() {
         console.log("SPAWN BUBBLE");
         const radius = getRandomInteger(25, 40);
-        //DOVREI AGGIUNGERE IL RAGGIO E SOTTRARLO ANCHE nel random
         const x = getRandomInteger(this.mBackground.x + radius, this.mBackground.x + this.mBackground.gameWidth - radius);
         const y = getRandomInteger(this.mBackground.y + radius, this.mBackground.y + this.mBackground.gameHeight - radius);
-        //TODO RANDOMIZE THIS SPAWN
+        //const x = this.mBackground.x + radius +5;
+        //const y = this.mBackground.y + radius + 5;
+        //TODO RANDOMIZE THIS SPEED
+        const speedX = 0;
+        const speedY = 0;
         console.log("X " + x + " Y" + y);
-        //const newCircle = new EnemyBubble(x, y, radius, getRandomColor(),this.mBackground);
-        const newCircle = new EnemyBubble(x, y, radius, getRandomColor(), this.mBackground);
-        newCircle.speedX = -1;
-        newCircle.speedY = 1;//(Math.random() * (1 + 1) - 1);
+        const newCircle = new EnemyBubble(x, y, radius,speedX,speedY, getRandomColor(), this.mBackground);
+        //newCircle.speedX = 0;
+        //newCircle.speedY = 0;//(Math.random() * (1 + 1) - 1);
         this.mBubbleArr.push(newCircle);
     }
 }
