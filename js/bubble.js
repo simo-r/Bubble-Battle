@@ -12,7 +12,6 @@ class Bubble {
     }
 
     draw(ctx) {
-
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
         ctx.fillStyle = this.color;
@@ -53,7 +52,6 @@ class Bubble {
             this.x = this.gameArea.x + this.gameArea.gameWidth - this.radius;
             this.speedX = -(this.acceleration);
         }
-
     }
 
     checkYBoundaries() {
