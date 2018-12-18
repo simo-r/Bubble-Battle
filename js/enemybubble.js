@@ -3,7 +3,7 @@ class EnemyBubble extends Bubble{
         super(x,y,radius,speedX,speedY,color,gameArea);
         
         //DEBUG
-        this.maxSpeed = 7;
+        this.maxSpeed = 1;
         this.oldGameAreaX = this.gameArea.x;
         this.oldGameAreaY = this.gameArea.y;
     }
@@ -19,4 +19,6 @@ class EnemyBubble extends Bubble{
         this.y += this.speedY + (this.gameArea.y - this.oldGameAreaY);
         this.oldGameAreaY = this.gameArea.y;
     }
+    
+    
 }

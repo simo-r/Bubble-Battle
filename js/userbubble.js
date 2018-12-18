@@ -1,7 +1,6 @@
 class UserBubble extends Bubble {
     constructor(x, y, radius, speedX, speedY, color, gameArea) {
         super(x, y, radius, speedX, speedY, color, gameArea);
-
         //this.isColliding = false;
         this.keys = {};
 
@@ -11,6 +10,24 @@ class UserBubble extends Bubble {
         let tmpUserBubble = new UserBubble(x, y, radius, speedX, speedY, color, gameArea);
         UserBubble.addKeyListeners(tmpUserBubble);
         return tmpUserBubble;
+    }
+
+    //OWN
+    static addKeyListeners(bubble) {
+        let keyDownFun = function (e) {
+            if (e.code === 'KeyW' || e.code === 'KeyA' || e.code === 'KeyS' || e.code === 'KeyD') {
+                bubble.keys[e.code] = true;
+                //console.log("KEY DOWN " + e.code);
+            }
+        };
+        let keyUpFun = function (e) {
+            if (e.code === 'KeyW' || e.code === 'KeyA' || e.code === 'KeyS' || e.code === 'KeyD') {
+                bubble.keys[e.code] = false;
+                //console.log("KEY UP " + e.code);
+            }
+        };
+        window.addEventListener('keydown', keyDownFun);
+        window.addEventListener('keyup', keyUpFun);
     }
 
     //OVERRIDE + SUPER (DONE)
@@ -120,26 +137,25 @@ class UserBubble extends Bubble {
         return r > Math.sqrt((x * x) + (y * y));
     }
     
+    collideOnShield(leftOffset,rightOffset,topOffset,downOffset){
+        //buggy
+        if(this.speedX < 0){
+            this.gameArea.x += leftOffset - 1;
+        }else if(this.speedX > 0){
+            this.gameArea.x -= rightOffset - 1;
+        }
+        
+        if(this.speedY < 0){
+            this.gameArea.y += topOffset;
+        }else if(this.speedY > 0){
+            this.gameArea.y -= downOffset;
+        }
+        this.speedX = 0;
+        this.speedY = 0;
+    }
+
     /*collidingWithEnemies() {
         //COLLIDING LOGIC
     }*/
-
-    //OWN
-    static addKeyListeners(bubble) {
-        let keyDownFun = function (e) {
-            if (e.code === 'KeyW' || e.code === 'KeyA' || e.code === 'KeyS' || e.code === 'KeyD') {
-                bubble.keys[e.code] = true;
-                //console.log("KEY DOWN " + e.code);
-            }
-        };
-        let keyUpFun = function (e) {
-            if (e.code === 'KeyW' || e.code === 'KeyA' || e.code === 'KeyS' || e.code === 'KeyD') {
-                bubble.keys[e.code] = false;
-                //console.log("KEY UP " + e.code);
-            }
-        };
-        window.addEventListener('keydown', keyDownFun);
-        window.addEventListener('keyup', keyUpFun);
-    }
 
 }

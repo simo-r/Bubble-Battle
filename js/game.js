@@ -28,7 +28,7 @@ class Game {
         //let bgCallback = this.mBackground.getBubbleCallbacks();
         this.mBubble = UserBubble.createUserBubble(canvasHalfWidth, canvasHalfHeight, radius, 0,0,getRandomColor(), this.mBackground);
         this.mShield = Shield.createShield(this.canvas,this.mBackground);
-        for (let i = 0; i < 100; i++)
+        for (let i = 0; i < 1; i++)
             this.spawnBubble();
         console.log("BACKGROUND X " + leftOffset + " BACKGROUND Y " + topOffset);
     }
@@ -56,13 +56,23 @@ class Game {
 
     move() {
         this.mBubble.move();
-        this.mBubbleArr.forEach(v => v.move());
+        this.mShield.checkCollision(this.mBubble);
+        this.mBubbleArr.forEach(v =>{
+            v.move();
+            this.mShield.checkCollision(v);
+        } );
     }
 
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.mBackground.draw(this.ctx);
-        this.mBubbleArr.forEach(v => v.draw(this.ctx));
+        this.mBubbleArr.forEach(v =>{ 
+            /*this.ctx.save();
+            this.ctx.translate(this.mBackground.x - v.oldGameAreaX, this.mBackground.y - v.oldGameAreaY);*/
+            v.draw(this.ctx);
+            //this.ctx.restore();
+        });
+    
         this.mBubble.draw(this.ctx);
         
         // Così evito di salvarmi il riferimento al background ALMENO nello shield

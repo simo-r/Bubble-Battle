@@ -52,4 +52,12 @@ class BackgroundComponent {
     get gameHeight(){
         return this.image.height;
     }
+    
+    get getX(){
+        return this.x;
+    }
+    
+    get getY(){
+        return this.y;
+    }
 }

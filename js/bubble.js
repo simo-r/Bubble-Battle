@@ -59,7 +59,7 @@ class Bubble {
         if (isOutOfYBounds === -1) {
             this.y = this.gameArea.y + this.radius;
             this.speedY = this.acceleration;
-            
+
         } else if (isOutOfYBounds === 1) {
             this.y = this.gameArea.y + this.gameArea.gameHeight - this.radius;
             this.speedY = -(this.acceleration);
@@ -100,6 +100,11 @@ class Bubble {
                 this.speedY = this.maxSpeed;
             }
         }
+    }
+
+    collideOnShield(pointX, pointY){        
+        this.speedX = 0;
+        this.speedY = 0;
     }
 
 
