@@ -29,7 +29,7 @@ class Game {
         this.mBubble = UserBubble.createUserBubble(canvasHalfWidth, canvasHalfHeight, radius, 0,0,getRandomColor(), this.mBackground);
         this.mShield = Shield.createShield(this.canvas,this.mBackground);
         for (let i = 0; i < 1; i++)
-            this.spawnBubble();
+            //this.spawnBubble();
         console.log("BACKGROUND X " + leftOffset + " BACKGROUND Y " + topOffset);
     }
 
@@ -57,6 +57,7 @@ class Game {
     move() {
         this.mBubble.move();
         this.mShield.checkCollision(this.mBubble);
+        this.mBackground.move(this.mBubble.speedX,this.mBubble.speedY);
         this.mBubbleArr.forEach(v =>{
             v.move();
             this.mShield.checkCollision(v);
@@ -80,6 +81,8 @@ class Game {
         this.ctx.translate(this.mBackground.x,this.mBackground.y);
         this.mShield.draw(this.ctx);
         this.ctx.restore();
+        //if(xnew !== undefined && ynew !== undefined)
+            //this.ctx.fillRect(xnew,ynew,50,50);
     }
 
     spawnBubble() {

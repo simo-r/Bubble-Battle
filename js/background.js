@@ -10,7 +10,7 @@ class BackgroundComponent {
         this.speedX = 0;
         this.speedY = 0;
     }
-
+    
     static createBackground(x, y, bgImage) {
         return new BackgroundComponent(x, y, bgImage);
     }

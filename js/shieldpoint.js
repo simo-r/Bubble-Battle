@@ -15,8 +15,8 @@ class ShieldPoint {
         let topBottomMargin = ((window.innerHeight - (canvas.height * scaleToCover)) / 2);
         let leftRightMargin = ((window.innerWidth - (canvas.width * scaleToCover)) / 2);
 
-        const mouseX = (e.clientX - leftRightMargin) / scaleToCover;
-        const mouseY = (e.clientY - topBottomMargin) / scaleToCover;
+        const mouseX = Math.round(e.clientX - leftRightMargin) / scaleToCover;
+        const mouseY = Math.round(e.clientY - topBottomMargin) / scaleToCover;
         return new ShieldPoint(mouseX, mouseY, background.x, background.y);
     }
 

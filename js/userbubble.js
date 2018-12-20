@@ -1,3 +1,5 @@
+let xnew;
+let ynew;
 class UserBubble extends Bubble {
     constructor(x, y, radius, speedX, speedY, color, gameArea) {
         super(x, y, radius, speedX, speedY, color, gameArea);
@@ -34,7 +36,8 @@ class UserBubble extends Bubble {
     move() {
         if (!(Object.keys(this.keys).length === 0 && this.keys.constructor === Object)) {
             super.move();
-            this.gameArea.move(this.speedX, this.speedY);
+
+            //this.gameArea.move(this.speedX, this.speedY);
         }
     }
 
@@ -136,20 +139,11 @@ class UserBubble extends Bubble {
         let y = this.y - circle.y;
         return r > Math.sqrt((x * x) + (y * y));
     }
-    
-    collideOnShield(leftOffset,rightOffset,topOffset,downOffset){
-        //buggy
-        if(this.speedX < 0){
-            this.gameArea.x += leftOffset - 1;
-        }else if(this.speedX > 0){
-            this.gameArea.x -= rightOffset - 1;
-        }
-        
-        if(this.speedY < 0){
-            this.gameArea.y += topOffset;
-        }else if(this.speedY > 0){
-            this.gameArea.y -= downOffset;
-        }
+
+    collideOnShield(x, y, offset) {
+        //TODO RIPOSIZIONARE
+        /*this.x = x;
+        this.y = y;*/
         this.speedX = 0;
         this.speedY = 0;
     }

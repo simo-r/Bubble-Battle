@@ -7,7 +7,7 @@ class Shield {
         this.shieldLength = 0;
         this.maxShieldLength = 600;
         this.shieldTimer = null;
-        this.shieldDuration = 3000; //milli-seconds
+        this.shieldDuration = 15000; //milli-seconds
     }
 
     static createShield(canvas, background) {
@@ -102,45 +102,103 @@ class Shield {
     }
 
     checkCollision(bubble) {
-        // LAZY HIT DETECTION FOR PERFORMANCE IMPROVING
-        let point;
+        let pointOld;
+        let pointNew;
         let find = false;
         let i = 0;
-        //SHIELD POINT
-        let pointX;
-        let pointY;
-        //RECTANGLE
-        let topLeftX = bubble.x - bubble.radius;
-        let topLeftY = bubble.y - bubble.radius;
-        let width = bubble.radius * 2;
-        let height = bubble.radius * 2;
-        while (!find && i < this.shieldPoints.length) {
-            point = this.shieldPoints[i];
+        let x1;
+        let y1;
+        let x2;
+        let y2;
+        let cx = Math.abs(bubble.gameArea.x - 640);
+        let cy = Math.abs(bubble.gameArea.y - 360);
+        //console.log(" CX " + cx + " CY " + cy + " BUBBLE X " + bubble.x + " BUBBLE Y " + bubble.y);
+        while (!find && i < (this.shieldPoints.length - 1)) {
+            pointOld = this.shieldPoints[i];
+            pointNew = this.shieldPoints[i + 1];
             //console.log("COLLIDING");
-            pointX = point.x + bubble.gameArea.getX - point.backgroundX;
-            pointY = point.y + bubble.gameArea.getY - point.backgroundY;
-            let leftOffset = topLeftX - pointX;
-            let rightOffset = pointX - topLeftX - width;
-            let topOffset = topLeftY - pointY;
-            let downOffset = pointY - topLeftY - height;
-            
-            if ((leftOffset <= 0) &&
-                (rightOffset <= 0) &&
-                (topOffset<= 0) &&
-                (downOffset <= 0)) {
+            x1 = pointOld.x /*+ bubble.gameArea.getX*/ - pointOld.backgroundX;
+            y1 = pointOld.y /*+ bubble.gameArea.getY */ - pointOld.backgroundY;
+            x2 = pointNew.x /*+ bubble.gameArea.getX*/ - pointNew.backgroundX;
+            y2 = pointNew.y /*+ bubble.gameArea.getY*/ - pointNew.backgroundY;
+            //console.log("X1 "+ x1 + " X2 " + x2 + " Y1" + y1 + " Y2 " + y2 + " CX " + cx + " CY " + cy);
+            let inside1 = this.pointCircle(x1, y1, cx, cy, bubble.radius);
+            let inside2 = this.pointCircle(x2, y2, cx, cy, bubble.radius);
+            if (inside1 || inside2) {
                 if (this.isShieldOn) {
-                    //console.log("COLLIDING ON");
-                    bubble.collideOnShield(leftOffset,rightOffset,topOffset,downOffset);
-                    console.log("LEFT " + leftOffset + " RIGHT " + rightOffset +
-                        " TOP " + topOffset + " DOWN " + downOffset);
+                    console.log("INSIDE");
+                    bubble.collideOnShield();
                 } else {
-                    console.log("COLLIDING OFF");
                     this.clearOldShield();
                     find = true;
+                }
+            } else {
+                let distX = x1 - x2;
+                let distY = y1 - y2;
+                let segmLength = Math.sqrt(distX * distX + distY * distY);
+                let dot = (((cx - x1) * (x2 - x1)) + ((cy - y1) * (y2 - y1))) / Math.pow(segmLength, 2);
+                let closestX = x1 + (dot * (x2 - x1));
+                let closestY = y1 + (dot * (y2 - y1));
+                if (this.linePoint(x1, y1, x2, y2, closestX, closestY)) {
+                    distX = closestX - cx;
+                    distY = closestY - cy;
+                    let distance = Math.sqrt(distX * distX + distY * distY);
+                    if (inside1 || inside2 || distance <= bubble.radius) {
+                        if (this.isShieldOn) {
+                            console.log("DISTANCE " + distance + " OFFSET " + (distance - bubble.radius) + " CLOS X " + (closestX + bubble.gameArea.getX) + " CLOS Y " + (closestY + bubble.gameArea.getY));
+                            bubble.collideOnShield((closestX + bubble.gameArea.getX), closestY + bubble.gameArea.getY, distance - bubble.radius);
+                        } else {
+                            this.clearOldShield();
+                            find = true;
+                        }
+                    }
                 }
             }
             i++;
         }
+    }
+
+    pointCircle(px, py, cx, cy, r) {
+
+        // get distance between the point and circle's center
+        // using the Pythagorean Theorem
+        let distX = px - cx;
+        let distY = py - cy;
+        let distance = Math.sqrt((distX * distX) + (distY * distY));
+
+        // if the distance is less than the circle's
+        // radius the point is inside!
+        if (distance <= r) {
+            return true;
+        }
+        return false;
+    }
+
+    dist(x1, y1, x2, y2) {
+        let x = x1 - x2;
+        let y = y1 - y2;
+        return Math.sqrt(x * x + y * y);
+    }
+
+    linePoint(x1, y1, x2, y2, px, py) {
+
+        // get distance from the point to the two ends of the line
+        let d1 = this.dist(px, py, x1, y1);
+        let d2 = this.dist(px, py, x2, y2);
+
+        // get the length of the line
+        let lineLen = this.dist(x1, y1, x2, y2);
+
+        // since floats are so minutely accurate, add
+        // a little buffer zone that will give collision
+        let buffer = 0.1;    // higher # = less accurate
+
+        // if the two distances are equal to the line's
+        // length, the point is on the line!
+        // note we use the buffer here to give a range,
+        // rather than one #
+        return d1 + d2 >= lineLen - buffer && d1 + d2 <= lineLen + buffer;
+
     }
 
 }

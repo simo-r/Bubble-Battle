@@ -103,8 +103,8 @@ class Bubble {
     }
 
     collideOnShield(pointX, pointY){        
-        this.speedX = 0;
-        this.speedY = 0;
+        this.speedX *= -1 ;
+        this.speedY *= -1;
     }
 
 
