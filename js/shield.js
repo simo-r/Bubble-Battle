@@ -110,66 +110,69 @@ class Shield {
         let y1;
         let x2;
         let y2;
-        let cx = Math.abs(bubble.gameArea.x - 640);
-        let cy = Math.abs(bubble.gameArea.y - 360);
-        //console.log(" CX " + cx + " CY " + cy + " BUBBLE X " + bubble.x + " BUBBLE Y " + bubble.y);
+        let cx = Math.abs(bubble.gameArea.x - bubble.x);
+        let cy = Math.abs(bubble.gameArea.y - bubble.y);
         while (!find && i < (this.shieldPoints.length - 1)) {
             pointOld = this.shieldPoints[i];
             pointNew = this.shieldPoints[i + 1];
-            //console.log("COLLIDING");
-            x1 = pointOld.x /*+ bubble.gameArea.getX*/ - pointOld.backgroundX;
-            y1 = pointOld.y /*+ bubble.gameArea.getY */ - pointOld.backgroundY;
-            x2 = pointNew.x /*+ bubble.gameArea.getX*/ - pointNew.backgroundX;
-            y2 = pointNew.y /*+ bubble.gameArea.getY*/ - pointNew.backgroundY;
+            x1 = pointOld.x - pointOld.backgroundX;
+            y1 = pointOld.y - pointOld.backgroundY;
+            x2 = pointNew.x - pointNew.backgroundX;
+            y2 = pointNew.y - pointNew.backgroundY;
             //console.log("X1 "+ x1 + " X2 " + x2 + " Y1" + y1 + " Y2 " + y2 + " CX " + cx + " CY " + cy);
+            // Controllo se uno dei due estremi del segmento è all'interno della circonf
             let inside1 = this.pointCircle(x1, y1, cx, cy, bubble.radius);
             let inside2 = this.pointCircle(x2, y2, cx, cy, bubble.radius);
-            if (inside1 || inside2) {
-                if (this.isShieldOn) {
-                    console.log("INSIDE");
-                    bubble.collideOnShield();
-                } else {
-                    this.clearOldShield();
-                    find = true;
-                }
+            if (inside1 !== false) {
+               find = this.collisionDetected(bubble,x1+bubble.gameArea.getX,y1+bubble.gameArea.getY,inside1);
+            }else if( inside2 !== false){
+                find = this.collisionDetected(bubble,x2+bubble.gameArea.getX,y2+bubble.gameArea.getY,inside2);
             } else {
+                // Cerchiamo il punto sul segmento (x1,y1) - (x2,y2) più vicino alla circonferenza
                 let distX = x1 - x2;
                 let distY = y1 - y2;
                 let segmLength = Math.sqrt(distX * distX + distY * distY);
                 let dot = (((cx - x1) * (x2 - x1)) + ((cy - y1) * (y2 - y1))) / Math.pow(segmLength, 2);
                 let closestX = x1 + (dot * (x2 - x1));
                 let closestY = y1 + (dot * (y2 - y1));
+                // Se il punto sta sul segmento
                 if (this.linePoint(x1, y1, x2, y2, closestX, closestY)) {
                     distX = closestX - cx;
                     distY = closestY - cy;
                     let distance = Math.sqrt(distX * distX + distY * distY);
-                    if (inside1 || inside2 || distance <= bubble.radius) {
-                        if (this.isShieldOn) {
-                            console.log("DISTANCE " + distance + " OFFSET " + (distance - bubble.radius) + " CLOS X " + (closestX + bubble.gameArea.getX) + " CLOS Y " + (closestY + bubble.gameArea.getY));
-                            bubble.collideOnShield((closestX + bubble.gameArea.getX), closestY + bubble.gameArea.getY, distance - bubble.radius);
-                        } else {
-                            this.clearOldShield();
-                            find = true;
-                        }
+                    if (distance <= bubble.radius) {
+                        find = this.collisionDetected(bubble,
+                            (closestX + bubble.gameArea.getX),
+                            closestY + bubble.gameArea.getY,
+                            distance - bubble.radius);
+                    
                     }
                 }
             }
             i++;
         }
     }
+    
+    collisionDetected(bubble,x1,y1,offset){
+        // Se lo shield è attivo la bubble collide altrimenti lo shield si cancella
+        if (this.isShieldOn) {
+            //console.log("DISTANCE " + distance + " OFFSET " + (distance - bubble.radius) + " CLOS X " + (closestX + bubble.gameArea.getX) + " CLOS Y " + (closestY + bubble.gameArea.getY));
+            bubble.collideOnShield(x1,y1,offset);
+        } else {
+            this.clearOldShield();
+        }
+        return true;
+    }
 
     pointCircle(px, py, cx, cy, r) {
-
-        // get distance between the point and circle's center
-        // using the Pythagorean Theorem
+        //Distanza punto - centro bubble
         let distX = px - cx;
         let distY = py - cy;
         let distance = Math.sqrt((distX * distX) + (distY * distY));
 
-        // if the distance is less than the circle's
-        // radius the point is inside!
+        //Se la distanza è minore del raggio allora è dentro
         if (distance <= r) {
-            return true;
+            return distance - r;
         }
         return false;
     }

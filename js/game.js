@@ -28,7 +28,7 @@ class Game {
         //let bgCallback = this.mBackground.getBubbleCallbacks();
         this.mBubble = UserBubble.createUserBubble(canvasHalfWidth, canvasHalfHeight, radius, 0,0,getRandomColor(), this.mBackground);
         this.mShield = Shield.createShield(this.canvas,this.mBackground);
-        for (let i = 0; i < 1; i++)
+        for (let i = 0; i < 100; i++)
             //this.spawnBubble();
         console.log("BACKGROUND X " + leftOffset + " BACKGROUND Y " + topOffset);
     }

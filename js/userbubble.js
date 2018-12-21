@@ -1,5 +1,3 @@
-let xnew;
-let ynew;
 class UserBubble extends Bubble {
     constructor(x, y, radius, speedX, speedY, color, gameArea) {
         super(x, y, radius, speedX, speedY, color, gameArea);
@@ -141,9 +139,39 @@ class UserBubble extends Bubble {
     }
 
     collideOnShield(x, y, offset) {
+        let cx = Math.abs(this.gameArea.x - this.x);
+        let cy = Math.abs(this.gameArea.y - this.y);
+        let ipo = Math.trunc(Math.sqrt(Math.pow(this.x - x, 2) + Math.pow(this.y - y, 2)));
+        let catmag = Math.trunc(Math.round(y - this.y));
+        let catmin = Math.trunc(Math.round(x - this.x));
+        let angle;
+        if (catmin === 0) {
+            angle = 0;
+        } else {
+            angle = (Math.atan(catmag / catmin));
+        }
+
+        let xnew = Math.abs(offset * Math.cos(angle));
+        let ynew = Math.abs(offset * Math.sin(angle));
+        let offsetX = this.radius - xnew;
+        let offSetY = this.radius - ynew;
         //TODO RIPOSIZIONARE
-        /*this.x = x;
-        this.y = y;*/
+        console.log(" X " + x + " Y " + y + " OFFSET " + offset +
+            " IPO " + ipo + " CAT MAG " + catmag + " CAT MIN " + catmin +
+            " ANGLE " + (angle * 180 / Math.PI) + " X NEW " + xnew +
+            " Y NEW " + ynew);
+        if (this.speedX < 0) {
+            xnew += 5;
+        } else if (this.speedX > 0) {
+            xnew = (xnew * -1) - 5;
+        }
+        if (this.speedY < 0) ynew += 5;
+        else if (this.speedY > 0) ynew = (ynew * -1) - 5;
+
+        this.gameArea.x -= xnew;
+        this.gameArea.y -= ynew;
+        
+
         this.speedX = 0;
         this.speedY = 0;
     }
