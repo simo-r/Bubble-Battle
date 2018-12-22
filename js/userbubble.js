@@ -3,7 +3,7 @@ class UserBubble extends Bubble {
         super(x, y, radius, speedX, speedY, color, gameArea);
         //this.isColliding = false;
         this.keys = {};
-
+        this.bumping = false;
     }
 
     static createUserBubble(x, y, radius, speedX, speedY, color, gameArea) {
@@ -15,7 +15,7 @@ class UserBubble extends Bubble {
     //OWN
     static addKeyListeners(bubble) {
         let keyDownFun = function (e) {
-            if (e.code === 'KeyW' || e.code === 'KeyA' || e.code === 'KeyS' || e.code === 'KeyD') {
+            if ((e.code === 'KeyW' || e.code === 'KeyA' || e.code === 'KeyS' || e.code === 'KeyD')) {
                 bubble.keys[e.code] = true;
                 //console.log("KEY DOWN " + e.code);
             }
@@ -33,8 +33,22 @@ class UserBubble extends Bubble {
     //OVERRIDE + SUPER (DONE)
     move() {
         if (!(Object.keys(this.keys).length === 0 && this.keys.constructor === Object)) {
-            super.move();
+            if (this.bumping) {
 
+                this.speedX = 0;
+                this.speedY = 0;
+                /* let speedXSign = Math.sign(this.speedX);
+                 let speedYSign = Math.sign(this.speedY);
+                 this.speedX = ((-(speedXSign) * this.acceleration) + this.speedX) * -1 || (speedXSign * this.acceleration);
+                 this.speedY = ((-(speedYSign) * this.acceleration) + this.speedY) * -1 || (speedYSign * this.acceleration);*/
+                this.bumping = false;
+            } /*else if(this.bouncing) {
+                this.speedX = 0;
+                this.speedY = 0;
+                this.bouncing = false;
+            }*/ else {
+                super.move();
+            }
             //this.gameArea.move(this.speedX, this.speedY);
         }
     }
@@ -139,41 +153,71 @@ class UserBubble extends Bubble {
     }
 
     collideOnShield(x, y, offset) {
-        let cx = Math.abs(this.gameArea.x - this.x);
+        /*let cx = Math.abs(this.gameArea.x - this.x);
         let cy = Math.abs(this.gameArea.y - this.y);
-        let ipo = Math.trunc(Math.sqrt(Math.pow(this.x - x, 2) + Math.pow(this.y - y, 2)));
+        let ipo = Math.trunc(Math.round(Math.sqrt(Math.pow(this.x - x, 2) + Math.pow(this.y - y, 2))));
         let catmag = Math.trunc(Math.round(y - this.y));
         let catmin = Math.trunc(Math.round(x - this.x));
         let angle;
-        if (catmin === 0) {
+        let anglesign = Math.sign(catmin);
+        if (Math.abs(catmag) === Math.abs(ipo)) {
+            console.log("CAT MAG === IPO");
+            angle = Math.sign(catmag) * 90 * Math.PI / 180;
+        } else if (Math.abs(catmin) === Math.abs(ipo)) {
             angle = 0;
+            console.log("CAT MIN === IPO");
         } else {
             angle = (Math.atan(catmag / catmin));
         }
+        if (offset < 1 && offset > -1) offset = Math.sign(offset);
+        offset = Math.sign(offset) * Math.ceil(Math.abs(offset));
+        let xnew = (offset) * Math.cos(angle);
+        let ynew = ((offset) * Math.sin(angle));
+        let xsign = Math.sign(xnew);
+        let ysign = Math.sign(ynew);
+        if (xnew < 1 && xnew > -1) xnew = Math.sign(xnew);
+        if (ynew < 1 && ynew > -1) ynew = Math.sign(ynew);
+        xnew = Math.sign(xnew) * Math.ceil(Math.abs(xnew));
+        ynew = Math.sign(ynew) * Math.ceil(Math.abs(ynew));
+        if (Math.abs(angle) === 0) ynew = 0;
+        if (Math.abs(angle) === (90 * Math.PI / 180)) xnew = 0;*/
 
-        let xnew = Math.abs(offset * Math.cos(angle));
-        let ynew = Math.abs(offset * Math.sin(angle));
-        let offsetX = this.radius - xnew;
-        let offSetY = this.radius - ynew;
         //TODO RIPOSIZIONARE
-        console.log(" X " + x + " Y " + y + " OFFSET " + offset +
-            " IPO " + ipo + " CAT MAG " + catmag + " CAT MIN " + catmin +
-            " ANGLE " + (angle * 180 / Math.PI) + " X NEW " + xnew +
-            " Y NEW " + ynew);
-        if (this.speedX < 0) {
-            xnew += 5;
-        } else if (this.speedX > 0) {
-            xnew = (xnew * -1) - 5;
+        /* console.log(" X " + x + " Y " + y + " OFFSET " + offset +
+             " IPO " + ipo + " CAT MAG " + catmag + " CAT MIN " + catmin +
+             " ANGLE " + (angle * 180 / Math.PI) + " X NEW " + xnew +
+             " Y NEW " + ynew + " ANGLE SIGN " + anglesign);*/
+
+        /*this.gameArea.x += (anglesign * Math.abs(xnew));
+        this.gameArea.y -= (ynew);*/
+        console.log("SPEED X" + this.speedX + " SPEED Y " + this.speedY);
+
+        /*let speedXSign = Math.sign(this.speedX);
+        let speedYSign = Math.sign(this.speedY);*/
+        /*this.speedX = ((-(speedXSign)*this.acceleration) + this.speedX) * -1 || (speedXSign*this.acceleration) ;
+        this.speedY = ((-(speedYSign)*this.acceleration) + this.speedY) * -1 || (speedYSign*this.acceleration) ;*/
+
+        if (this.speedX === 0) {
+            console.log("X MINUS RADIUS " + (this.x - this.radius) + " X PLUS RADIUS " + (this.x + this.radius) + " X " + x);
+            if (this.x < x) {
+                this.speedX = 1;
+            } else if (this.x > x) {
+                this.speedX = -1;
+            }
         }
-        if (this.speedY < 0) ynew += 5;
-        else if (this.speedY > 0) ynew = (ynew * -1) - 5;
+        if (this.speedY === 0) {
+            console.log("Y MINUS RADIUS " + (this.y - this.radius) + " Y PLUS RADIUS " + (this.y + this.radius) + " Y " + y);
+            if (this.y < y) {
 
-        this.gameArea.x -= xnew;
-        this.gameArea.y -= ynew;
-        
-
-        this.speedX = 0;
-        this.speedY = 0;
+                this.speedY = 1;
+            } else if (this.y > y) {
+                this.speedY = -1;
+            }
+        }
+        this.speedX *= -1;
+        this.speedY *= -1;
+        console.log("SPEED X AFTER " + this.speedX + " SPEED Y AFTER " + this.speedY);
+        this.bumping = true;
     }
 
     /*collidingWithEnemies() {

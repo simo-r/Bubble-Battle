@@ -1,3 +1,4 @@
+//TODO Rimuovere il keypress quando la window perde il focus
 class Game {
     constructor() {
         this.canvas = document.getElementById("bbCanvas");
@@ -26,11 +27,11 @@ class Game {
         let topOffset = getRandomInteger(canvasHalfHeight + radius - gameHeight, canvasHalfHeight - radius);
         this.mBackground = BackgroundComponent.createBackground(leftOffset, topOffset, background);
         //let bgCallback = this.mBackground.getBubbleCallbacks();
-        this.mBubble = UserBubble.createUserBubble(canvasHalfWidth, canvasHalfHeight, radius, 0,0,getRandomColor(), this.mBackground);
-        this.mShield = Shield.createShield(this.canvas,this.mBackground);
-        for (let i = 0; i < 100; i++)
-            //this.spawnBubble();
-        console.log("BACKGROUND X " + leftOffset + " BACKGROUND Y " + topOffset);
+        this.mBubble = UserBubble.createUserBubble(canvasHalfWidth, canvasHalfHeight, radius, 0, 0, getRandomColor(), this.mBackground);
+        this.mShield = Shield.createShield(this.canvas, this.mBackground);
+        for (let i = 0; i < 1000; i++)
+            this.spawnBubble();
+            console.log("BACKGROUND X " + leftOffset + " BACKGROUND Y " + topOffset);
     }
 
     scaleForWindowResize() {
@@ -57,32 +58,32 @@ class Game {
     move() {
         this.mBubble.move();
         this.mShield.checkCollision(this.mBubble);
-        this.mBackground.move(this.mBubble.speedX,this.mBubble.speedY);
-        this.mBubbleArr.forEach(v =>{
+        this.mBackground.move(this.mBubble.speedX, this.mBubble.speedY);
+        this.mBubbleArr.forEach(v => {
             v.move();
             this.mShield.checkCollision(v);
-        } );
+        });
     }
 
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.mBackground.draw(this.ctx);
-        this.mBubbleArr.forEach(v =>{ 
+        this.mBubbleArr.forEach(v => {
             /*this.ctx.save();
             this.ctx.translate(this.mBackground.x - v.oldGameAreaX, this.mBackground.y - v.oldGameAreaY);*/
             v.draw(this.ctx);
             //this.ctx.restore();
         });
-    
+
         this.mBubble.draw(this.ctx);
-        
+
         // Così evito di salvarmi il riferimento al background ALMENO nello shield
         this.ctx.save();
-        this.ctx.translate(this.mBackground.x,this.mBackground.y);
+        this.ctx.translate(this.mBackground.x, this.mBackground.y);
         this.mShield.draw(this.ctx);
         this.ctx.restore();
         //if(xnew !== undefined && ynew !== undefined)
-            //this.ctx.fillRect(xnew,ynew,50,50);
+        //this.ctx.fillRect(xnew,ynew,50,50);
     }
 
     spawnBubble() {
@@ -97,7 +98,7 @@ class Game {
         const speedX = 0;
         const speedY = 0;
         console.log("X " + x + " Y" + y);
-        const newCircle = new EnemyBubble(x, y, radius,speedX,speedY, getRandomColor(), this.mBackground);
+        const newCircle = new EnemyBubble(x, y, radius, speedX, speedY, getRandomColor(), this.mBackground);
         this.mBubbleArr.push(newCircle);
     }
 }

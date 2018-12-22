@@ -125,8 +125,10 @@ class Shield {
             let inside2 = this.pointCircle(x2, y2, cx, cy, bubble.radius);
             if (inside1 !== false) {
                find = this.collisionDetected(bubble,x1+bubble.gameArea.getX,y1+bubble.gameArea.getY,inside1);
+                //if(!find) i =0;
             }else if( inside2 !== false){
                 find = this.collisionDetected(bubble,x2+bubble.gameArea.getX,y2+bubble.gameArea.getY,inside2);
+                //if(!find) i =0;
             } else {
                 // Cerchiamo il punto sul segmento (x1,y1) - (x2,y2) più vicino alla circonferenza
                 let distX = x1 - x2;
@@ -145,6 +147,7 @@ class Shield {
                             (closestX + bubble.gameArea.getX),
                             closestY + bubble.gameArea.getY,
                             distance - bubble.radius);
+                        //if(!find) i =0;
                     
                     }
                 }
@@ -158,10 +161,12 @@ class Shield {
         if (this.isShieldOn) {
             //console.log("DISTANCE " + distance + " OFFSET " + (distance - bubble.radius) + " CLOS X " + (closestX + bubble.gameArea.getX) + " CLOS Y " + (closestY + bubble.gameArea.getY));
             bubble.collideOnShield(x1,y1,offset);
+            return true;
         } else {
             this.clearOldShield();
+            return true;
         }
-        return true;
+        
     }
 
     pointCircle(px, py, cx, cy, r) {
