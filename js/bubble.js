@@ -22,8 +22,9 @@ class Bubble {
         //TODO Puoi spostare questo in una traslazione nel contesto dall'observer
         this.moveX();
         this.moveY();
-        this.checkXBoundaries();
-        this.checkYBoundaries();
+        
+        /*this.checkXBoundaries();
+        this.checkYBoundaries();*/
         //COLLIDING WITH SHIELD
     }
 
@@ -59,7 +60,6 @@ class Bubble {
         if (isOutOfYBounds === -1) {
             this.y = this.gameArea.y + this.radius;
             this.speedY = this.acceleration;
-
         } else if (isOutOfYBounds === 1) {
             this.y = this.gameArea.y + this.gameArea.gameHeight - this.radius;
             this.speedY = -(this.acceleration);
@@ -105,6 +105,11 @@ class Bubble {
     collideOnShield(pointX, pointY){        
         this.speedX *= -1 ;
         this.speedY *= -1;
+    }
+
+    checkGameAreaCollision(){
+        this.checkXBoundaries();
+        this.checkYBoundaries();
     }
 
 

@@ -10,6 +10,7 @@ class EnemyBubble extends Bubble{
     
     moveX(){
         super.moveX();
+        // TODO Se gli traslo il contesto forse non c'è bisogno
         this.x += this.speedX + (this.gameArea.x - this.oldGameAreaX);
         this.oldGameAreaX = this.gameArea.x;
     }
@@ -19,6 +20,8 @@ class EnemyBubble extends Bubble{
         this.y += this.speedY + (this.gameArea.y - this.oldGameAreaY);
         this.oldGameAreaY = this.gameArea.y;
     }
+    
+    
     
     
 }

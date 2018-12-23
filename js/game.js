@@ -1,4 +1,11 @@
-//TODO Rimuovere il keypress quando la window perde il focus
+//TODO 
+// Rimuovere il keypress quando la window perde il focus
+// Refactoring codice del movimento, far muovere le altre bubble con i tasti
+
+// TUTTO QUESTO FUNZIONA FINCHé MAXSPEED < RADIUS altrimenti potrebbe oltrepassare lo shield
+// per risolvere potrei fare l'intersezione tra i segmenti dello shield e il vettore spostamento
+// anzi meglio rappresentare il vettore spostamento come un rettangolo dato dalla somma 
+// dei quadrati che circoscrivono il cerchio e controllare se il rettangolo interseca un segmento
 class Game {
     constructor() {
         this.canvas = document.getElementById("bbCanvas");
@@ -31,7 +38,7 @@ class Game {
         this.mShield = Shield.createShield(this.canvas, this.mBackground);
         for (let i = 0; i < 1000; i++)
             this.spawnBubble();
-            console.log("BACKGROUND X " + leftOffset + " BACKGROUND Y " + topOffset);
+        console.log("BACKGROUND X " + leftOffset + " BACKGROUND Y " + topOffset);
     }
 
     scaleForWindowResize() {
@@ -56,12 +63,16 @@ class Game {
     }
 
     move() {
+        // INIZIO MOVIMENTO BUBBLE UTENTE
         this.mBubble.move();
-        this.mShield.checkCollision(this.mBubble);
+        if (!this.mShield.checkCollision(this.mBubble))
+            this.mBubble.checkGameAreaCollision();
         this.mBackground.move(this.mBubble.speedX, this.mBubble.speedY);
-        this.mBubbleArr.forEach(v => {
-            v.move();
-            this.mShield.checkCollision(v);
+        // FINE MOVIMENTO BUBBLE UTENTE
+        this.mBubbleArr.forEach(bubble => {
+            bubble.move();
+            if (!this.mShield.checkCollision(bubble))
+                bubble.checkGameAreaCollision();
         });
     }
 
@@ -82,8 +93,6 @@ class Game {
         this.ctx.translate(this.mBackground.x, this.mBackground.y);
         this.mShield.draw(this.ctx);
         this.ctx.restore();
-        //if(xnew !== undefined && ynew !== undefined)
-        //this.ctx.fillRect(xnew,ynew,50,50);
     }
 
     spawnBubble() {

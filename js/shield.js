@@ -105,13 +105,23 @@ class Shield {
         let pointOld;
         let pointNew;
         let find = false;
+        let collisionDetected = false;
         let i = 0;
         let x1;
         let y1;
         let x2;
         let y2;
-        let cx = Math.abs(bubble.gameArea.x - bubble.x);
-        let cy = Math.abs(bubble.gameArea.y - bubble.y);
+        const cx = Math.abs(bubble.gameArea.x - bubble.x);
+        const cy = Math.abs(bubble.gameArea.y - bubble.y);
+        let inside1;
+        let inside2;
+        let distX;
+        let distY;
+        let segmLength;
+        let dot;
+        let closestX;
+        let closestY;
+        let distance;
         while (!find && i < (this.shieldPoints.length - 1)) {
             pointOld = this.shieldPoints[i];
             pointNew = this.shieldPoints[i + 1];
@@ -121,52 +131,54 @@ class Shield {
             y2 = pointNew.y - pointNew.backgroundY;
             //console.log("X1 "+ x1 + " X2 " + x2 + " Y1" + y1 + " Y2 " + y2 + " CX " + cx + " CY " + cy);
             // Controllo se uno dei due estremi del segmento è all'interno della circonf
-            let inside1 = this.pointCircle(x1, y1, cx, cy, bubble.radius);
-            let inside2 = this.pointCircle(x2, y2, cx, cy, bubble.radius);
+            inside1 = this.pointCircle(x1, y1, cx, cy, bubble.radius);
+            inside2 = this.pointCircle(x2, y2, cx, cy, bubble.radius);
             if (inside1 !== false) {
-               find = this.collisionDetected(bubble,x1+bubble.gameArea.getX,y1+bubble.gameArea.getY,inside1);
-                //if(!find) i =0;
-            }else if( inside2 !== false){
-                find = this.collisionDetected(bubble,x2+bubble.gameArea.getX,y2+bubble.gameArea.getY,inside2);
-                //if(!find) i =0;
+                collisionDetected = this.collisionDetected(bubble, x1 + bubble.gameArea.getX, y1 + bubble.gameArea.getY, inside1);
+                find = true;
+            } else if (inside2 !== false) {
+                collisionDetected = this.collisionDetected(bubble, x2 + bubble.gameArea.getX, y2 + bubble.gameArea.getY, inside2);
+                find = true;
             } else {
                 // Cerchiamo il punto sul segmento (x1,y1) - (x2,y2) più vicino alla circonferenza
-                let distX = x1 - x2;
-                let distY = y1 - y2;
-                let segmLength = Math.sqrt(distX * distX + distY * distY);
-                let dot = (((cx - x1) * (x2 - x1)) + ((cy - y1) * (y2 - y1))) / Math.pow(segmLength, 2);
-                let closestX = x1 + (dot * (x2 - x1));
-                let closestY = y1 + (dot * (y2 - y1));
+                distX = x1 - x2;
+                distY = y1 - y2;
+                segmLength = Math.sqrt(distX * distX + distY * distY);
+                dot = (((cx - x1) * (x2 - x1)) + ((cy - y1) * (y2 - y1))) / Math.pow(segmLength, 2);
+                closestX = x1 + (dot * (x2 - x1));
+                closestY = y1 + (dot * (y2 - y1));
                 // Se il punto sta sul segmento
                 if (this.linePoint(x1, y1, x2, y2, closestX, closestY)) {
                     distX = closestX - cx;
                     distY = closestY - cy;
-                    let distance = Math.sqrt(distX * distX + distY * distY);
+                    distance = Math.sqrt(distX * distX + distY * distY);
                     if (distance <= bubble.radius) {
-                        find = this.collisionDetected(bubble,
+                        collisionDetected = this.collisionDetected(bubble,
                             (closestX + bubble.gameArea.getX),
                             closestY + bubble.gameArea.getY,
                             distance - bubble.radius);
                         //if(!find) i =0;
-                    
+                        find = true;
                     }
                 }
             }
             i++;
         }
+        return collisionDetected;
     }
-    
-    collisionDetected(bubble,x1,y1,offset){
+
+    // True se lo shield è on e collide, false se collide e lo shield è off
+    collisionDetected(bubble, x1, y1, offset) {
         // Se lo shield è attivo la bubble collide altrimenti lo shield si cancella
         if (this.isShieldOn) {
             //console.log("DISTANCE " + distance + " OFFSET " + (distance - bubble.radius) + " CLOS X " + (closestX + bubble.gameArea.getX) + " CLOS Y " + (closestY + bubble.gameArea.getY));
-            bubble.collideOnShield(x1,y1,offset);
+            bubble.collideOnShield(x1, y1, offset);
             return true;
         } else {
             this.clearOldShield();
-            return true;
+            return false;
         }
-        
+
     }
 
     pointCircle(px, py, cx, cy, r) {
