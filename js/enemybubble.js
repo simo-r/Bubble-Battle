@@ -3,10 +3,15 @@ class EnemyBubble extends Bubble{
         super(x,y,radius,speedX,speedY,color,gameArea);
         
         //DEBUG
-        this.maxSpeed = 10;
+        
         this.oldGameAreaX = this.gameArea.x;
         this.oldGameAreaY = this.gameArea.y;
     }
+    
+   /* move(){
+        this.moveX();
+        this.moveY();
+    }*/
     
     moveX(){
         super.moveX();

@@ -18,7 +18,6 @@ class Shield {
 
     static addMouseListeners(shield, canvas, background) {
         let mouseDownFun = function (e) {
-            console.log("THIS " + this + ' ' + typeof this);
             if (shield.isShieldOn) return;
             let shieldPoint = ShieldPoint.newPoint(e, canvas, background);
             shield.paint = true;
@@ -219,6 +218,16 @@ class Shield {
         // rather than one #
         return d1 + d2 >= lineLen - buffer && d1 + d2 <= lineLen + buffer;
 
+    }
+
+    checkGameArea(gameWidth,gameHeight) {
+        this.shieldPoints.forEach(v => {
+            //console.log(v.toString());
+            if(v.getGameX <= 0 || v.getGameX >= gameWidth || v.getGameY <= 0 || v.getGameY >= gameHeight) {
+                this.clearOldShield();
+                return;
+            }
+        });
     }
 
 }

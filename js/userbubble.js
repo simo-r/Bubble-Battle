@@ -2,6 +2,7 @@ class UserBubble extends Bubble {
     constructor(x, y, radius, speedX, speedY, color, gameArea) {
         super(x, y, radius, speedX, speedY, color, gameArea);
         //this.isColliding = false;
+        
         this.keys = {};
         this.bumping = false;
     }
@@ -38,6 +39,8 @@ class UserBubble extends Bubble {
                 this.speedY = 0;
                 this.bumping = false;
             } else {
+                /*this.moveX();
+                this.moveY();*/
                 super.move();
             }
         }
@@ -81,10 +84,10 @@ class UserBubble extends Bubble {
         if (isOutOfXBounds) {
             this.speedX = 0;
             if (isOutOfXBounds === -1) {
-                this.gameArea.x = this.x - this.radius;
+                this.gameArea.x = Math.floor(this.x - this.radius) ;
                 console.log("OUT LEFT");
             } else if (isOutOfXBounds === 1) {
-                this.gameArea.x = this.x + this.radius - this.gameArea.gameWidth;
+                this.gameArea.x = Math.ceil(this.x + this.radius - this.gameArea.gameWidth);
                 console.log("OUT RIGHT");
             }
         }
@@ -96,47 +99,13 @@ class UserBubble extends Bubble {
         if (isOutOfYBounds) {
             this.speedY = 0;
             if (isOutOfYBounds === -1) {
-                this.gameArea.y = this.y - this.radius;
+                this.gameArea.y = Math.floor(this.y - this.radius);
             } else if (isOutOfYBounds === 1) {
-                this.gameArea.y = this.y + this.radius - this.gameArea.gameHeight;
+                this.gameArea.y = Math.ceil(this.y + this.radius - this.gameArea.gameHeight);
             }
         }
     }
-
-    //OWN
-    slowDownX() {
-        if (this.speedX > 0) {
-            if ((this.speedX -= this.acceleration) < 0) {
-                this.speedX = 0;
-            }
-        } else if (this.speedX < 0) {
-            if ((this.speedX += this.acceleration) > 0) {
-                this.speedX = 0;
-            }
-        }
-    }
-
-    //OWN
-    slowDownY() {
-        if (this.speedY > 0) {
-            if ((this.speedY -= this.acceleration) < 0) {
-                this.speedY = 0;
-            }
-        } else if (this.speedY < 0) {
-            if ((this.speedY += this.acceleration) > 0) {
-                this.speedY = 0;
-            }
-        }
-    }
-
-    //INHERIT (MAYBE)
-    hitDetection(circle) {
-        let r = this.radius + circle.radius;
-        let x = this.x - circle.x;
-        let y = this.y - circle.y;
-        return r > Math.sqrt((x * x) + (y * y));
-    }
-
+    
     collideOnShield(x, y, offset) {
         console.log("SPEED X" + this.speedX + " SPEED Y " + this.speedY);
         if (this.speedX === 0) {

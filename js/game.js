@@ -1,6 +1,7 @@
 //TODO 
 // Rimuovere il keypress quando la window perde il focus
 // Refactoring codice del movimento, far muovere le altre bubble con i tasti
+// Refactoring del colliding tra le bubble
 
 // TUTTO QUESTO FUNZIONA FINCHé MAXSPEED < RADIUS altrimenti potrebbe oltrepassare lo shield
 // per risolvere potrei fare l'intersezione tra i segmenti dello shield e il vettore spostamento
@@ -36,7 +37,7 @@ class Game {
         //let bgCallback = this.mBackground.getBubbleCallbacks();
         this.mBubble = UserBubble.createUserBubble(canvasHalfWidth, canvasHalfHeight, radius, 0, 0, getRandomColor(), this.mBackground);
         this.mShield = Shield.createShield(this.canvas, this.mBackground);
-        for (let i = 0; i < 1000; i++)
+        for (let i = 0; i < 2; i++)
             this.spawnBubble();
         console.log("BACKGROUND X " + leftOffset + " BACKGROUND Y " + topOffset);
     }
@@ -63,17 +64,51 @@ class Game {
     }
 
     move() {
+        // CHECK SE LO SHIELD è FUORI DALLA GAME AREA
+        this.mShield.checkGameArea(this.mBackground.gameWidth, this.mBackground.gameHeight);
         // INIZIO MOVIMENTO BUBBLE UTENTE
         this.mBubble.move();
-        if (!this.mShield.checkCollision(this.mBubble))
+        if (!this.mShield.checkCollision(this.mBubble)) {
             this.mBubble.checkGameAreaCollision();
+            for (let i = 0; i < this.mBubbleArr.length; i++) {
+                let bubble = this.mBubbleArr[i];
+                let hit = this.mBubble.collideOnBubble(bubble);
+                if (hit > 0) {
+                    if(this.mBubble.radius > bubble.radius){
+                        this.mBubble.colliding(-hit);
+                        bubble.colliding(hit);
+                    }else if(this.mBubble.radius < bubble.radius){
+                        this.mBubble.colliding(hit);
+                        bubble.colliding(-hit);
+                    }else{
+                        this.mBubble.colliding(hit);
+                        bubble.colliding(hit);
+                    }
+                    
+                    
+                    console.log(" USER HIT DETECTED " + hit)
+                }
+            }
+        }
         this.mBackground.move(this.mBubble.speedX, this.mBubble.speedY);
         // FINE MOVIMENTO BUBBLE UTENTE
-        this.mBubbleArr.forEach(bubble => {
+        for (let i = 0; i < this.mBubbleArr.length; i++) {
+            let bubble = this.mBubbleArr[i];
             bubble.move();
-            if (!this.mShield.checkCollision(bubble))
+            if (!this.mShield.checkCollision(bubble)) {
                 bubble.checkGameAreaCollision();
-        });
+                /*for (let j = i + 1; j < this.mBubbleArr.length; j++) {
+                    let det = bubble.collideOnBubble(this.mBubbleArr[j]);
+                    if (det > 0) {
+                        console.log(" CIRCLE DETECTED " + det);
+                    }
+                }*/
+            }
+        }
+        /*this.mBubbleArr.forEach(bubble => {
+           
+                
+        });*/
     }
 
     draw() {
@@ -97,6 +132,8 @@ class Game {
 
     spawnBubble() {
         console.log("SPAWN BUBBLE");
+
+        //const radius = 30;
         const radius = getRandomInteger(25, 40);
         const x = getRandomInteger(this.mBackground.x + radius, this.mBackground.x + this.mBackground.gameWidth - radius);
         const y = getRandomInteger(this.mBackground.y + radius, this.mBackground.y + this.mBackground.gameHeight - radius);

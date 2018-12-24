@@ -51,4 +51,16 @@ class ShieldPoint {
     get getBackgroundY() {
         return this.backgroundY;
     }
+    
+    get getGameX(){
+        return this.x - this.backgroundX;
+    }
+    
+    get getGameY(){
+        return this.y - this.backgroundY;
+    }
+    
+    toString(){
+        return " X " + (this.x - this.backgroundX)+ " Y " + (this.y-this.backgroundY) + " BGX " + this.backgroundX + " BGY " + this.backgroundY;
+    }
 }
