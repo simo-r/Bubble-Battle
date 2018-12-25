@@ -5,8 +5,8 @@ class Bubble {
         this.radius = radius;
         this.color = color;
         this.gameArea = gameArea;
-        this.maxSpeed = 3;
-        this.acceleration = 1;
+        this.maxSpeed = 10;
+        this.acceleration = 0.3;
         this.speedX = speedX;
         this.speedY = speedY;
     }
@@ -67,28 +67,29 @@ class Bubble {
     }
 
     //OWN
-    slowDownX(coeff = 1) {
-        if (this.speedX > 0) {
-            if ((this.speedX -= this.acceleration*coeff) < 0) {
-                this.speedX = 0;
+    slowDownX(coeff = 1,lowerBound = 0) {
+        if(this.speedX === 0) return;
+        if (this.speedX > lowerBound) {
+            if ((this.speedX -= this.acceleration*coeff) < lowerBound) {
+                this.speedX = lowerBound;
             }
-        } else if (this.speedX < 0) {
-            if ((this.speedX += this.acceleration*coeff) > 0) {
-                this.speedX = 0;
+        } else if (this.speedX < -lowerBound) {
+            if ((this.speedX += this.acceleration*coeff) > -lowerBound) {
+                this.speedX = -lowerBound;
             }
         }
     }
 
     //OWN
-    slowDownY(coeff=1) {
-        console.log(" ACCE * COEFF " + (this.acceleration*coeff));
-        if (this.speedY > 0) {
-            if ((this.speedY -= this.acceleration*coeff) < 0) {
-                this.speedY = 0;
+    slowDownY(coeff=1,lowerBound=0) {
+        if(this.speedY === 0 ) return;
+        if (this.speedY > lowerBound) {
+            if ((this.speedY -= this.acceleration*coeff) < lowerBound) {
+                this.speedY = lowerBound;
             }
-        } else if (this.speedY < 0) {
-            if ((this.speedY += this.acceleration*coeff) > 0) {
-                this.speedY = 0;
+        } else if (this.speedY < -lowerBound) {
+            if ((this.speedY += this.acceleration*coeff) > -lowerBound) {
+                this.speedY = -lowerBound;
             }
         }
     }
@@ -148,14 +149,12 @@ class Bubble {
         return r - Math.sqrt((x * x) + (y * y));
     }
 
-    colliding(hit) {
+    colliding(radiusRatio=0,hit = 2*this.radius) {
         // 0<=ratio<=1
-        let ratio = hit / (2*this.radius) ;
-        console.log("RATIO " + ratio);
-        this.radius -= ratio /*Da moltiplicare*/ ;
-        this.slowDownX(Math.abs(ratio)/*da moltiplicare*/);
-        this.slowDownY(Math.abs(ratio)/*da moltiplicare*/);
-    }
-
-
+        let ratio = (hit / (2*this.radius)).toFixed(2) ;
+        console.log("RATIO " + ratio + " RADIUS RATIO " + radiusRatio);
+        this.radius -= radiusRatio /*Da moltiplicare*/ ;
+        this.slowDownX(ratio,this.acceleration);
+        this.slowDownY(ratio,this.acceleration);
+    }   
 }

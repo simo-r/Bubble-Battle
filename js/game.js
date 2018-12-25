@@ -31,8 +31,11 @@ class Game {
         let canvasHalfWidth = this.canvas.width / 2;
         let canvasHalfHeight = this.canvas.height / 2;
         let radius = 30;
-        let leftOffset = getRandomInteger(canvasHalfWidth + radius - gameWidth, canvasHalfWidth - radius);
-        let topOffset = getRandomInteger(canvasHalfHeight + radius - gameHeight, canvasHalfHeight - radius);
+        //let leftOffset = getRandomInteger(canvasHalfWidth + radius - gameWidth, canvasHalfWidth - radius);
+        //let topOffset = getRandomInteger(canvasHalfHeight + radius - gameHeight, canvasHalfHeight - radius);
+        let leftOffset = canvasHalfWidth + radius - gameWidth;
+        let topOffset = canvasHalfHeight + radius - gameHeight;
+
         this.mBackground = BackgroundComponent.createBackground(leftOffset, topOffset, background);
         //let bgCallback = this.mBackground.getBubbleCallbacks();
         this.mBubble = UserBubble.createUserBubble(canvasHalfWidth, canvasHalfHeight, radius, 0, 0, getRandomColor(), this.mBackground);
@@ -72,21 +75,10 @@ class Game {
             this.mBubble.checkGameAreaCollision();
             for (let i = 0; i < this.mBubbleArr.length; i++) {
                 let bubble = this.mBubbleArr[i];
-                let hit = this.mBubble.collideOnBubble(bubble);
-                if (hit > 0) {
-                    if(this.mBubble.radius > bubble.radius){
-                        this.mBubble.colliding(-hit);
-                        bubble.colliding(hit);
-                    }else if(this.mBubble.radius < bubble.radius){
-                        this.mBubble.colliding(hit);
-                        bubble.colliding(-hit);
-                    }else{
-                        this.mBubble.colliding(hit);
-                        bubble.colliding(hit);
-                    }
-                    
-                    
-                    console.log(" USER HIT DETECTED " + hit)
+                let intersectionLen = this.mBubble.collideOnBubble(bubble);
+                if (intersectionLen > 0) {
+                    this.bubbleCollidingLogic(this.mBubble,bubble,intersectionLen);
+                    console.log(" USER HIT DETECTED " + intersectionLen);
                 }
             }
         }
@@ -105,12 +97,26 @@ class Game {
                 }*/
             }
         }
-        /*this.mBubbleArr.forEach(bubble => {
-           
-                
-        });*/
+    }
+    
+    bubbleCollidingLogic(bubble1,bubble2,intersectionLen){
+        if(bubble1.radius > bubble2.radius){
+            // 0 <= radiusRatio <= 1
+            let radiusRatio = (bubble2.radius/bubble1.radius).toFixed(2);
+            bubble1.colliding(-radiusRatio,intersectionLen);
+            bubble2.colliding(radiusRatio,intersectionLen);
+        }else if(bubble1.radius < bubble2.radius){
+            // 0<= radiusRatio <=1
+            let radiusRatio = (bubble1.radius/bubble2.radius).toFixed(2);
+            bubble1.colliding(radiusRatio,intersectionLen);
+            bubble2.colliding(-radiusRatio,intersectionLen);
+        }else{
+            bubble1.colliding();
+            bubble2.colliding();
+        }
     }
 
+    
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.mBackground.draw(this.ctx);
@@ -132,7 +138,6 @@ class Game {
 
     spawnBubble() {
         console.log("SPAWN BUBBLE");
-
         //const radius = 30;
         const radius = getRandomInteger(25, 40);
         const x = getRandomInteger(this.mBackground.x + radius, this.mBackground.x + this.mBackground.gameWidth - radius);
