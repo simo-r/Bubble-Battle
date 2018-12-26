@@ -1,7 +1,6 @@
 //TODO 
 // Rimuovere il keypress quando la window perde il focus
-// Refactoring codice del movimento, far muovere le altre bubble con i tasti
-// Refactoring del colliding tra le bubble
+// Inserire velocità e accelerazione min e max
 
 // TUTTO QUESTO FUNZIONA FINCHé MAXSPEED < RADIUS altrimenti potrebbe oltrepassare lo shield
 // per risolvere potrei fare l'intersezione tra i segmenti dello shield e il vettore spostamento
@@ -16,6 +15,8 @@ class Game {
         this.mBubble = null;
         this.mShield = null;
         this.mBubbleArr = [];
+        this.frameCount = 1;
+        this.frameMod = 500;
     }
 
     static createGame(background) {
@@ -23,6 +24,23 @@ class Game {
         tmpGame.scaleForWindowResize();
         tmpGame.createComponents(background);
         return tmpGame;
+    }
+
+    static bubbleCollidingLogic(bubble1, bubble2, intersectionLen) {
+        if (bubble1.radius > bubble2.radius) {
+            // 0 <= radiusRatio <= 1
+            let radiusRatio = (bubble2.radius / bubble1.radius).toFixed(2);
+            bubble1.colliding(-radiusRatio, intersectionLen);
+            bubble2.colliding(radiusRatio, intersectionLen);
+        } else if (bubble1.radius < bubble2.radius) {
+            // 0<= radiusRatio <=1
+            let radiusRatio = (bubble1.radius / bubble2.radius).toFixed(2);
+            bubble1.colliding(radiusRatio, intersectionLen);
+            bubble2.colliding(-radiusRatio, intersectionLen);
+        } else {
+            bubble1.colliding();
+            bubble2.colliding();
+        }
     }
 
     createComponents(background) {
@@ -35,12 +53,11 @@ class Game {
         //let topOffset = getRandomInteger(canvasHalfHeight + radius - gameHeight, canvasHalfHeight - radius);
         let leftOffset = canvasHalfWidth + radius - gameWidth;
         let topOffset = canvasHalfHeight + radius - gameHeight;
-
         this.mBackground = BackgroundComponent.createBackground(leftOffset, topOffset, background);
         //let bgCallback = this.mBackground.getBubbleCallbacks();
         this.mBubble = UserBubble.createUserBubble(canvasHalfWidth, canvasHalfHeight, radius, 0, 0, getRandomColor(), this.mBackground);
         this.mShield = Shield.createShield(this.canvas, this.mBackground);
-        for (let i = 0; i < 2; i++)
+        for (let i = 0; i < 100; i++)
             this.spawnBubble();
         console.log("BACKGROUND X " + leftOffset + " BACKGROUND Y " + topOffset);
     }
@@ -70,14 +87,14 @@ class Game {
         // CHECK SE LO SHIELD è FUORI DALLA GAME AREA
         this.mShield.checkGameArea(this.mBackground.gameWidth, this.mBackground.gameHeight);
         // INIZIO MOVIMENTO BUBBLE UTENTE
-        this.mBubble.move();
+        this.mBubble.updateSpeed();
         if (!this.mShield.checkCollision(this.mBubble)) {
             this.mBubble.checkGameAreaCollision();
             for (let i = 0; i < this.mBubbleArr.length; i++) {
                 let bubble = this.mBubbleArr[i];
                 let intersectionLen = this.mBubble.collideOnBubble(bubble);
                 if (intersectionLen > 0) {
-                    this.bubbleCollidingLogic(this.mBubble,bubble,intersectionLen);
+                    Game.bubbleCollidingLogic(this.mBubble, bubble, intersectionLen);
                     console.log(" USER HIT DETECTED " + intersectionLen);
                 }
             }
@@ -86,49 +103,33 @@ class Game {
         // FINE MOVIMENTO BUBBLE UTENTE
         for (let i = 0; i < this.mBubbleArr.length; i++) {
             let bubble = this.mBubbleArr[i];
-            bubble.move();
+            if (this.frameCount % this.frameMod === 0) {
+                bubble.changeDirection();
+            }
+            bubble.updateSpeed();
             if (!this.mShield.checkCollision(bubble)) {
                 bubble.checkGameAreaCollision();
-                /*for (let j = i + 1; j < this.mBubbleArr.length; j++) {
-                    let det = bubble.collideOnBubble(this.mBubbleArr[j]);
-                    if (det > 0) {
-                        console.log(" CIRCLE DETECTED " + det);
-                    }
-                }*/
             }
+            bubble.move();
         }
-    }
-    
-    bubbleCollidingLogic(bubble1,bubble2,intersectionLen){
-        if(bubble1.radius > bubble2.radius){
-            // 0 <= radiusRatio <= 1
-            let radiusRatio = (bubble2.radius/bubble1.radius).toFixed(2);
-            bubble1.colliding(-radiusRatio,intersectionLen);
-            bubble2.colliding(radiusRatio,intersectionLen);
-        }else if(bubble1.radius < bubble2.radius){
-            // 0<= radiusRatio <=1
-            let radiusRatio = (bubble1.radius/bubble2.radius).toFixed(2);
-            bubble1.colliding(radiusRatio,intersectionLen);
-            bubble2.colliding(-radiusRatio,intersectionLen);
-        }else{
-            bubble1.colliding();
-            bubble2.colliding();
-        }
+        this.frameCount++;
+        if(this.frameCount > this.frameMod){
+            console.log("RESET");
+            this.frameCount=1;
+        } 
     }
 
-    
+
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.mBackground.draw(this.ctx);
-        this.mBubbleArr.forEach(v => {
+        this.mBubbleArr.forEach(bubble => {
             /*this.ctx.save();
-            this.ctx.translate(this.mBackground.x - v.oldGameAreaX, this.mBackground.y - v.oldGameAreaY);*/
-            v.draw(this.ctx);
-            //this.ctx.restore();
+            this.ctx.translate(+this.mBackground.x - bubble.oldGameAreaX,+this.mBackground.y - bubble.oldGameAreaY);
+            */bubble.draw(this.ctx);
+            /*this.ctx.restore();*/
         });
-
         this.mBubble.draw(this.ctx);
-
         // Così evito di salvarmi il riferimento al background ALMENO nello shield
         this.ctx.save();
         this.ctx.translate(this.mBackground.x, this.mBackground.y);

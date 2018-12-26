@@ -133,10 +133,10 @@ class Shield {
             inside1 = this.pointCircle(x1, y1, cx, cy, bubble.radius);
             inside2 = this.pointCircle(x2, y2, cx, cy, bubble.radius);
             if (inside1 !== false) {
-                collisionDetected = this.collisionDetected(bubble, x1 + bubble.gameArea.getX, y1 + bubble.gameArea.getY, inside1);
+                collisionDetected = this.collisionDetected(bubble, x1 + bubble.gameArea.getX, y1 + bubble.gameArea.getY);
                 find = true;
             } else if (inside2 !== false) {
-                collisionDetected = this.collisionDetected(bubble, x2 + bubble.gameArea.getX, y2 + bubble.gameArea.getY, inside2);
+                collisionDetected = this.collisionDetected(bubble, x2 + bubble.gameArea.getX, y2 + bubble.gameArea.getY);
                 find = true;
             } else {
                 // Cerchiamo il punto sul segmento (x1,y1) - (x2,y2) più vicino alla circonferenza
@@ -154,8 +154,7 @@ class Shield {
                     if (distance <= bubble.radius) {
                         collisionDetected = this.collisionDetected(bubble,
                             (closestX + bubble.gameArea.getX),
-                            closestY + bubble.gameArea.getY,
-                            distance - bubble.radius);
+                            closestY + bubble.gameArea.getY);
                         //if(!find) i =0;
                         find = true;
                     }
@@ -167,11 +166,11 @@ class Shield {
     }
 
     // True se lo shield è on e collide, false se collide e lo shield è off
-    collisionDetected(bubble, x1, y1, offset) {
+    collisionDetected(bubble, x1, y1) {
         // Se lo shield è attivo la bubble collide altrimenti lo shield si cancella
         if (this.isShieldOn) {
             //console.log("DISTANCE " + distance + " OFFSET " + (distance - bubble.radius) + " CLOS X " + (closestX + bubble.gameArea.getX) + " CLOS Y " + (closestY + bubble.gameArea.getY));
-            bubble.collideOnShield(x1, y1, offset);
+            bubble.collideOnShield(x1, y1);
             return true;
         } else {
             this.clearOldShield();

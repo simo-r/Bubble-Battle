@@ -1,32 +1,46 @@
-class EnemyBubble extends Bubble{
-    constructor(x, y, radius, speedX,speedY, color, gameArea) {
-        super(x,y,radius,speedX,speedY,color,gameArea);
-        
+class EnemyBubble extends Bubble {
+    constructor(x, y, radius, speedX, speedY, color, gameArea) {
+        super(x, y, radius, speedX, speedY, color, gameArea);
         //DEBUG
-        
+        this.keys = getRandomWASD();
+        console.log("KEYS " + this.keys.toString());
         this.oldGameAreaX = this.gameArea.x;
         this.oldGameAreaY = this.gameArea.y;
     }
+
+    changeDirection() {
+        this.keys = getRandomWASD();
+    }
     
-   /* move(){
-        this.moveX();
-        this.moveY();
-    }*/
-    
-    moveX(){
-        super.moveX();
-        // TODO Se gli traslo il contesto forse non c'è bisogno
+    draw(ctx) {
+        super.draw(ctx);
+        this.oldGameAreaX = this.gameArea.x;
+        this.oldGameAreaY = this.gameArea.y;
+    }
+
+    move(){
         this.x += this.speedX + (this.gameArea.x - this.oldGameAreaX);
-        this.oldGameAreaX = this.gameArea.x;
-    }
-    
-    moveY(){
-        super.moveY();
+       
         this.y += this.speedY + (this.gameArea.y - this.oldGameAreaY);
-        this.oldGameAreaY = this.gameArea.y;
+       
     }
     
-    
-    
-    
+    collideOnShield(x, y) {
+        super.collideOnShield(x, y);
+        if (this.keys['KeyA']) {
+            this.keys['KeyA'] = false;
+            this.keys['KeyD'] = true;
+        } else if (this.keys['KeyD']) {
+            this.keys['KeyA'] = true;
+            this.keys['KeyD'] = false;
+        }
+        if (this.keys['KeyW']) {
+            this.keys['KeyW'] = false;
+            this.keys['KeyS'] = true;
+        } else if (this.keys['KeyS']) {
+            this.keys['KeyW'] = true;
+            this.keys['KeyS'] = false;
+        }
+    }
+
 }
