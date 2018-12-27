@@ -51,16 +51,15 @@ class Shield {
                 }, shield.shieldDuration);
             }
         };
-        canvas.onmousedown = mouseDownFun;
-        canvas.onmousemove = mouseMoveFun;
-        canvas.onmouseup = mouseUpFun;
-        canvas.onmouseleave = mouseUpFun;
+        window.onmousedown = mouseDownFun;
+        window.onmousemove = mouseMoveFun;
+        window.onmouseup = mouseUpFun;
+        window.onmouseleave = mouseUpFun;
     }
 
     increaseShieldLength(newPoint) {
         let previousPoint = this.shieldPoints[this.shieldPoints.length - 1];
         this.shieldLength += previousPoint.distanceTo(newPoint);
-        console.log("SHIELD LENGTH " + this.shieldLength);
     }
 
     draw(ctx) {
@@ -128,7 +127,6 @@ class Shield {
             y1 = pointOld.y - pointOld.backgroundY;
             x2 = pointNew.x - pointNew.backgroundX;
             y2 = pointNew.y - pointNew.backgroundY;
-            //console.log("X1 "+ x1 + " X2 " + x2 + " Y1" + y1 + " Y2 " + y2 + " CX " + cx + " CY " + cy);
             // Controllo se uno dei due estremi del segmento è all'interno della circonf
             inside1 = this.pointCircle(x1, y1, cx, cy, bubble.radius);
             inside2 = this.pointCircle(x2, y2, cx, cy, bubble.radius);
@@ -169,7 +167,6 @@ class Shield {
     collisionDetected(bubble, x1, y1) {
         // Se lo shield è attivo la bubble collide altrimenti lo shield si cancella
         if (this.isShieldOn) {
-            //console.log("DISTANCE " + distance + " OFFSET " + (distance - bubble.radius) + " CLOS X " + (closestX + bubble.gameArea.getX) + " CLOS Y " + (closestY + bubble.gameArea.getY));
             bubble.collideOnShield(x1, y1);
             return true;
         } else {
@@ -221,10 +218,8 @@ class Shield {
 
     checkGameArea(gameWidth,gameHeight) {
         this.shieldPoints.forEach(v => {
-            //console.log(v.toString());
             if(v.getGameX <= 0 || v.getGameX >= gameWidth || v.getGameY <= 0 || v.getGameY >= gameHeight) {
                 this.clearOldShield();
-                return;
             }
         });
     }

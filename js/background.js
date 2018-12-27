@@ -16,7 +16,6 @@ class BackgroundComponent {
     }
 
     move(speedX,speedY) {
-        //console.log("SPEED X" + this.speedX);
         this.x -= speedX;
         this.y -= speedY;
     }

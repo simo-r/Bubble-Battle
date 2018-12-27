@@ -3,7 +3,6 @@ class EnemyBubble extends Bubble {
         super(x, y, radius, speedX, speedY, color, gameArea);
         //DEBUG
         this.keys = getRandomWASD();
-        console.log("KEYS " + this.keys.toString());
         this.oldGameAreaX = this.gameArea.x;
         this.oldGameAreaY = this.gameArea.y;
     }

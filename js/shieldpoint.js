@@ -24,7 +24,6 @@ class ShieldPoint {
         let distance = Math.sqrt(
             Math.pow(p2.x - (this.x + p2.backgroundX - this.backgroundX), 2) +
             Math.pow(p2.y - (this.y + p2.backgroundY - this.backgroundY), 2));
-        console.log("LENGTH " + distance);
         return distance;
     }
 

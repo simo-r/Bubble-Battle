@@ -9,7 +9,9 @@
 class Game {
     constructor() {
         this.canvas = document.getElementById("bbCanvas");
-        this.ctx = this.canvas.getContext("2d");
+        this.uicanvas = document.getElementById("uiCanvas");
+        this.uictx = this.uicanvas.getContext("2d", { alpha: true });
+        this.ctx = this.canvas.getContext("2d", { alpha: false });
         this.stage = document.getElementById("content");
         this.mBackground = null;
         this.mBubble = null;
@@ -17,6 +19,7 @@ class Game {
         this.mBubbleArr = [];
         this.frameCount = 1;
         this.frameMod = 500;
+        this.gameOver = false;
     }
 
     static createGame(background) {
@@ -33,13 +36,31 @@ class Game {
             bubble1.colliding(-radiusRatio, intersectionLen);
             bubble2.colliding(radiusRatio, intersectionLen);
         } else if (bubble1.radius < bubble2.radius) {
-            // 0<= radiusRatio <=1
+            // 0 <= radiusRatio <=1
             let radiusRatio = (bubble1.radius / bubble2.radius).toFixed(2);
             bubble1.colliding(radiusRatio, intersectionLen);
             bubble2.colliding(-radiusRatio, intersectionLen);
         } else {
             bubble1.colliding();
             bubble2.colliding();
+        }
+    }
+
+    bubbleKillLogic(bubble, i = -1) {
+        if (bubble.getRadius < Bubble.getMinRadius()) {
+            switch (i) {
+                case -1:
+                    //TODO GAME OVER LOGIC
+                    this.gameOver = true;
+                    console.log("GAME OVER " + reqId);
+                    break;
+                default:
+                    console.log("KILLED " + i);
+                    this.mBubbleArr.splice(i, 1);
+                    break;
+            }
+
+
         }
     }
 
@@ -59,7 +80,6 @@ class Game {
         this.mShield = Shield.createShield(this.canvas, this.mBackground);
         for (let i = 0; i < 100; i++)
             this.spawnBubble();
-        console.log("BACKGROUND X " + leftOffset + " BACKGROUND Y " + topOffset);
     }
 
     scaleForWindowResize() {
@@ -90,14 +110,6 @@ class Game {
         this.mBubble.updateSpeed();
         if (!this.mShield.checkCollision(this.mBubble)) {
             this.mBubble.checkGameAreaCollision();
-            for (let i = 0; i < this.mBubbleArr.length; i++) {
-                let bubble = this.mBubbleArr[i];
-                let intersectionLen = this.mBubble.collideOnBubble(bubble);
-                if (intersectionLen > 0) {
-                    Game.bubbleCollidingLogic(this.mBubble, bubble, intersectionLen);
-                    console.log(" USER HIT DETECTED " + intersectionLen);
-                }
-            }
         }
         this.mBackground.move(this.mBubble.speedX, this.mBubble.speedY);
         // FINE MOVIMENTO BUBBLE UTENTE
@@ -112,11 +124,21 @@ class Game {
             }
             bubble.move();
         }
+
+        for (let i = 0; i < this.mBubbleArr.length; i++) {
+            let bubble = this.mBubbleArr[i];
+            let intersectionLen = this.mBubble.collideOnBubble(bubble);
+            if (intersectionLen > 0) {
+                Game.bubbleCollidingLogic(this.mBubble, bubble, intersectionLen);
+                this.bubbleKillLogic(bubble, i);
+            }
+        }
+        this.bubbleKillLogic(this.mBubble);
+
         this.frameCount++;
-        if(this.frameCount > this.frameMod){
-            console.log("RESET");
-            this.frameCount=1;
-        } 
+        if (this.frameCount > this.frameMod) {
+            this.frameCount = 1;
+        }
     }
 
 
@@ -126,7 +148,8 @@ class Game {
         this.mBubbleArr.forEach(bubble => {
             /*this.ctx.save();
             this.ctx.translate(+this.mBackground.x - bubble.oldGameAreaX,+this.mBackground.y - bubble.oldGameAreaY);
-            */bubble.draw(this.ctx);
+            */
+            bubble.draw(this.ctx);
             /*this.ctx.restore();*/
         });
         this.mBubble.draw(this.ctx);
@@ -135,10 +158,17 @@ class Game {
         this.ctx.translate(this.mBackground.x, this.mBackground.y);
         this.mShield.draw(this.ctx);
         this.ctx.restore();
+
+
+        
+        this.uictx.font = '48px serif';
+        this.uictx.textBaseline = 'hanging';
+        this.uictx.color = 'black';
+        this.uictx.fillText('Hello world', 0, 100);
+        
     }
 
     spawnBubble() {
-        console.log("SPAWN BUBBLE");
         //const radius = 30;
         const radius = getRandomInteger(25, 40);
         const x = getRandomInteger(this.mBackground.x + radius, this.mBackground.x + this.mBackground.gameWidth - radius);
@@ -149,8 +179,11 @@ class Game {
         //(Math.random() * (1 + 1) - 1);
         const speedX = 0;
         const speedY = 0;
-        console.log("X " + x + " Y" + y);
         const newCircle = new EnemyBubble(x, y, radius, speedX, speedY, getRandomColor(), this.mBackground);
         this.mBubbleArr.push(newCircle);
+    }
+
+    get isGameOver(){
+        return this.gameOver;
     }
 }

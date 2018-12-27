@@ -5,7 +5,7 @@ class Bubble {
         this.radius = radius;
         this.color = color;
         this.gameArea = gameArea;
-        this.maxSpeed = Math.round(100 / this.radius);
+        this.maxSpeed = this.getCurrentMaxSpeed;
         this.acceleration = 0.3;
         this.speedX = speedX;
         this.speedY = speedY;
@@ -13,20 +13,37 @@ class Bubble {
         this.bumping = false;
     }
 
+    static getMinRadius() {
+        return 20;
+    }
+
+    static getMaxRadius() {
+        return 300;
+    }
+
+    get getCurrentMaxSpeed() {
+        return Math.ceil(100 / this.radius);
+    }
+
+    get getRadius() {
+        return this.radius;
+    }
+
+
     draw(ctx) {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
         ctx.fillStyle = this.color;
         ctx.fill();
+        
     }
 
     updateSpeed() {
-        if(this.bumping){
-            console.log("BUMPING");
+        if (this.bumping) {
             this.speedX = 0;
             this.speedY = 0;
             this.bumping = false;
-        }else{
+        } else {
             this.updateSpeedX();
             this.updateSpeedY();
         }
@@ -49,19 +66,18 @@ class Bubble {
     updateSpeedY() {
         if ((this.keys['KeyS'] && this.keys['KeyW']) ||
             (this.speedY !== 0 && !(this.keys['KeyS'] || this.keys['KeyW']))) {
-            //console.log("RALLENTA X");
+            
             this.slowDownY();
             //RALLENTA
         } else if (this.keys['KeyW']) {
-            //console.log("MUOVITI A SINISTRA");
             this.moveUp();
             //MOVE LEFT
         } else if (this.keys['KeyS']) {
-            //console.log("MUOVITI A DESTRA");
             this.moveDown();
             //MOVE RIGHT
         }
     }
+
 
     checkXBoundaries() {
         let isOutOfXBounds = this.gameArea.isOutOfXBounds(this.x, this.radius);
@@ -180,10 +196,10 @@ class Bubble {
         }
         this.speedX *= -1;
         this.speedY *= -1;
-        
+
         this.bumping = true;
-        console.log("SPEED X AFTER " + this.speedX + " SPEED Y AFTER " + this.speedY);
-       
+        //console.log("SPEED X AFTER " + this.speedX + " SPEED Y AFTER " + this.speedY);
+
     }
 
     checkGameAreaCollision() {
@@ -196,17 +212,21 @@ class Bubble {
         let r = this.radius + circle.radius;
         let x = this.x - circle.x;
         let y = this.y - circle.y;
-        //console.log(" Radius - ipo " + (r - Math.sqrt((x * x) + (y * y))));
         return r - Math.sqrt((x * x) + (y * y));
     }
 
     colliding(radiusRatio = 0, hit = 2 * this.radius) {
         // 0<=ratio<=1
         let ratio = (hit / (2 * this.radius)).toFixed(2);
-        console.log("RATIO " + ratio + " RADIUS RATIO " + radiusRatio);
         this.radius -= radiusRatio /*Da moltiplicare*/;
-        this.maxSpeed = Math.round(100 / this.radius);
+        if (this.radius > Bubble.getMaxRadius()) {
+            this.radius = Bubble.getMaxRadius();
+        }
+        this.maxSpeed = this.getCurrentMaxSpeed;
         this.slowDownX(ratio, this.acceleration);
         this.slowDownY(ratio, this.acceleration);
+        //console.log("RATIO " + ratio + " RADIUS RATIO " + radiusRatio);
     }
+
+
 }

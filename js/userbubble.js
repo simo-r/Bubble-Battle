@@ -8,19 +8,17 @@ class UserBubble extends Bubble {
         UserBubble.addKeyListeners(tmpUserBubble);
         return tmpUserBubble;
     }
-
+    
     //OWN
     static addKeyListeners(bubble) {
         let keyDownFun = function (e) {
             if ((e.code === 'KeyW' || e.code === 'KeyA' || e.code === 'KeyS' || e.code === 'KeyD')) {
                 bubble.keys[e.code] = true;
-                //console.log("KEY DOWN " + e.code);
             }
         };
         let keyUpFun = function (e) {
             if (e.code === 'KeyW' || e.code === 'KeyA' || e.code === 'KeyS' || e.code === 'KeyD') {
                 bubble.keys[e.code] = false;
-                //console.log("KEY UP " + e.code);
             }
         };
         window.addEventListener('keydown', keyDownFun);
@@ -41,10 +39,8 @@ class UserBubble extends Bubble {
             this.speedX = 0;
             if (isOutOfXBounds === -1) {
                 this.gameArea.x = Math.floor(this.x - this.radius);
-                console.log("OUT LEFT");
             } else if (isOutOfXBounds === 1) {
                 this.gameArea.x = Math.ceil(this.x + this.radius - this.gameArea.gameWidth);
-                console.log("OUT RIGHT");
             }
         }
     }

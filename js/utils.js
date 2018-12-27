@@ -19,7 +19,6 @@ function getRandomWASD(){
     let keyName = ['KeyW','KeyA','KeyS','KeyD'];
     let keyValue;
     for(let i = 0; i < 4; i++){
-        console.log(' ' + keyName[i] + ' ' + (keyValue===1));
         keyValue = getRandomInteger(0,1);
         key[keyName[i]] = keyValue === 1;
         //key.push(getRandomInteger(0,1));
