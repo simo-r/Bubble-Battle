@@ -10,8 +10,11 @@ class Game {
     constructor() {
         this.canvas = document.getElementById("bbCanvas");
         this.uicanvas = document.getElementById("uiCanvas");
-        this.uictx = this.uicanvas.getContext("2d", { alpha: true });
-        this.ctx = this.canvas.getContext("2d", { alpha: false });
+        this.uictx = this.uicanvas.getContext("2d");
+        /*this.uiStage = document.getElementById("uiContent");*/
+        this.uictx.shadowBlur = 0;
+        this.ctx = this.canvas.getContext("2d", {alpha: false});
+        this.ctx.shadowBlur = 0;
         this.stage = document.getElementById("content");
         this.mBackground = null;
         this.mBubble = null;
@@ -20,6 +23,9 @@ class Game {
         this.frameCount = 1;
         this.frameMod = 500;
         this.gameOver = false;
+        this.topBottomMargin = 0;
+        this.leftRightMargin = 0;
+        this.scaleToCover = 0;
     }
 
     static createGame(background) {
@@ -88,13 +94,17 @@ class Game {
         let scaleX = window.innerWidth / canvasWidth;
         let scaleY = window.innerHeight / canvasHeight;
         //let scaleToFit = Math.min(scaleX, scaleY);
-        let scaleToCover = Math.max(scaleX, scaleY);
+        this.scaleToCover = Math.max(scaleX, scaleY);
         this.stage.style.transformOrigin = '0 0'; //scale from top left
-        this.stage.style.transform = 'scale(' + scaleToCover + ')';
-        let topBottomMargin = ((window.innerHeight - (canvasHeight * scaleToCover)) / 2);
-        let leftRightMargin = ((window.innerWidth - (canvasWidth * scaleToCover)) / 2);
-        this.stage.style.margin = topBottomMargin + "px " + leftRightMargin + "px " + topBottomMargin + "px " + leftRightMargin + "px";
-        console.log("SCALE FOR WINDOW RESIZE");
+        this.stage.style.transform = 'scale(' + this.scaleToCover + ')';
+        this.topBottomMargin = Math.round((window.innerHeight - (canvasHeight * this.scaleToCover)) / 2);
+        this.leftRightMargin = Math.round((window.innerWidth - (canvasWidth * this.scaleToCover)) / 2);
+        this.stage.style.margin = this.topBottomMargin + "px " + this.leftRightMargin + "px "/* + this.topBottomMargin + "px " + this.leftRightMargin + "px"*/;
+
+        console.log("MARGINE " + this.leftRightMargin + " " + this.topBottomMargin);
+        // UI
+        this.uictx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        //console.log("SCALE FOR WINDOW RESIZE");
     }
 
     gameLoop() {
@@ -144,6 +154,7 @@ class Game {
 
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
         this.mBackground.draw(this.ctx);
         this.mBubbleArr.forEach(bubble => {
             /*this.ctx.save();
@@ -159,13 +170,27 @@ class Game {
         this.mShield.draw(this.ctx);
         this.ctx.restore();
 
-
-        
-        this.uictx.font = '48px serif';
-        this.uictx.textBaseline = 'hanging';
-        this.uictx.color = 'black';
-        this.uictx.fillText('Hello world', 0, 100);
-        
+        //UI
+        this.uictx.save();
+        this.uictx.scale(1/this.scaleToCover,1/this.scaleToCover);
+        this.uictx.translate(-this.leftRightMargin /*/ this.scaleToCover*/, -this.topBottomMargin /*/ this.scaleToCover*/);
+        let fontSize = Math.round(16 * this.scaleToCover);
+        this.uictx.font = fontSize+'px serif';
+        this.uictx.textBaseline = 'top';
+        this.uictx.color = 'white';
+        let txt = 'TEXT1';
+        let measure = this.uictx.measureText(txt).width;
+        this.uictx.clearRect(0, 0, measure, fontSize);
+        this.uictx.fillText(txt, 0, 0);
+        txt = 'TEXT2';
+        measure = this.uictx.measureText(txt).width;
+        this.uictx.clearRect(0, fontSize, measure, fontSize);
+        this.uictx.fillText(txt, 0, fontSize);
+        txt = 'TEXT3';
+        measure = this.uictx.measureText(txt).width;
+        this.uictx.clearRect(window.innerWidth-measure,0, measure, fontSize);
+        this.uictx.fillText(txt,window.innerWidth/*/this.scaleToCover*/-measure,0);
+        this.uictx.restore();
     }
 
     spawnBubble() {
@@ -183,7 +208,7 @@ class Game {
         this.mBubbleArr.push(newCircle);
     }
 
-    get isGameOver(){
+    get isGameOver() {
         return this.gameOver;
     }
 }
