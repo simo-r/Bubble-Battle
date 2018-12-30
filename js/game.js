@@ -9,16 +9,16 @@
 class Game {
     constructor() {
         this.canvas = document.getElementById("bbCanvas");
-        this.uicanvas = document.getElementById("uiCanvas");
+        /*this.uicanvas = document.getElementById("uiCanvas");
         this.uictx = this.uicanvas.getContext("2d");
-        /*this.uiStage = document.getElementById("uiContent");*/
-        this.uictx.shadowBlur = 0;
+        this.uictx.shadowBlur = 0;*/
         this.ctx = this.canvas.getContext("2d", {alpha: false});
         this.ctx.shadowBlur = 0;
         this.stage = document.getElementById("content");
         this.mBackground = null;
         this.mBubble = null;
         this.mShield = null;
+        this.mGameUi = null;
         this.mBubbleArr = [];
         this.frameCount = 1;
         this.frameMod = 500;
@@ -30,8 +30,8 @@ class Game {
 
     static createGame(background) {
         let tmpGame = new Game();
-        tmpGame.scaleForWindowResize();
         tmpGame.createComponents(background);
+        tmpGame.scaleForWindowResize();
         return tmpGame;
     }
 
@@ -61,13 +61,43 @@ class Game {
                     console.log("GAME OVER " + reqId);
                     break;
                 default:
-                    console.log("KILLED " + i);
+                    console.log("KILL");
                     this.mBubbleArr.splice(i, 1);
+                    this.updatePlayerCounterUi();
+                   
+                    // DRAW PLAYER COUNTER
                     break;
             }
 
 
         }
+    }
+    
+    // TODO TRASLA PER DEFINIRE IL SUO RETTANGOLO GIUSTO
+    updatePlayerCounterUi(){
+        this.mGameUi.saveCtx();
+        this.mGameUi.scaleCtx(1 / this.scaleToCover, 1 / this.scaleToCover);
+        this.mGameUi.translateCtx(-this.leftRightMargin, -this.topBottomMargin);
+        this.mGameUi.drawPlayerCounter(this.mBubbleArr.length);
+        this.mGameUi.restoreCtx();
+    }
+    
+    updateRankingUi(){
+        this.mGameUi.saveCtx();
+        this.mGameUi.scaleCtx(1 / this.scaleToCover, 1 / this.scaleToCover);
+        this.mGameUi.translateCtx(-this.leftRightMargin, -this.topBottomMargin);
+        // Per ora gli passo tutto
+        this.mGameUi.drawRanking(this.mBubbleArr);
+        this.mGameUi.restoreCtx();
+    }
+
+    updateLifeUi(){
+        this.mGameUi.saveCtx();
+        this.mGameUi.scaleCtx(1 / this.scaleToCover, 1 / this.scaleToCover);
+        this.mGameUi.translateCtx(-this.leftRightMargin, -this.topBottomMargin);
+        // Per ora gli passo tutto
+        this.mGameUi.drawUserLife(this.mBubble.radius);
+        this.mGameUi.restoreCtx();
     }
 
     createComponents(background) {
@@ -81,11 +111,22 @@ class Game {
         let leftOffset = canvasHalfWidth + radius - gameWidth;
         let topOffset = canvasHalfHeight + radius - gameHeight;
         this.mBackground = BackgroundComponent.createBackground(leftOffset, topOffset, background);
+        this.mGameUi = new GameUi();
         //let bgCallback = this.mBackground.getBubbleCallbacks();
         this.mBubble = UserBubble.createUserBubble(canvasHalfWidth, canvasHalfHeight, radius, 0, 0, getRandomColor(), this.mBackground);
         this.mShield = Shield.createShield(this.canvas, this.mBackground);
-        for (let i = 0; i < 100; i++)
+        for (let i = 0; i < 100; i++){
             this.spawnBubble();
+        }
+        this.mBubbleArr.sort(function (b1,b2) {
+            return b1.getRadius - b2.getRadius;
+        });
+        this.updateRankingUi();
+       /* for (let i = 0; i < 100; i++){
+            console.log(" BUBBLE " + i + " RADIUS " + this.mBubbleArr[i].getRadius);
+        }*/
+       
+        
     }
 
     scaleForWindowResize() {
@@ -101,9 +142,12 @@ class Game {
         this.leftRightMargin = Math.round((window.innerWidth - (canvasWidth * this.scaleToCover)) / 2);
         this.stage.style.margin = this.topBottomMargin + "px " + this.leftRightMargin + "px "/* + this.topBottomMargin + "px " + this.leftRightMargin + "px"*/;
 
-        console.log("MARGINE " + this.leftRightMargin + " " + this.topBottomMargin);
         // UI
-        this.uictx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.mGameUi.clearAll();
+        this.mGameUi.setFontSize = Math.round(16 * this.scaleToCover);
+        this.updateRankingUi();
+        this.updatePlayerCounterUi();
+        console.log("MARGINE " + this.leftRightMargin + " " + this.topBottomMargin);
         //console.log("SCALE FOR WINDOW RESIZE");
     }
 
@@ -123,28 +167,45 @@ class Game {
         }
         this.mBackground.move(this.mBubble.speedX, this.mBubble.speedY);
         // FINE MOVIMENTO BUBBLE UTENTE
+        if( this.frameCount % this.frameMod === 0){
+            this.mBubbleArr.forEach( v =>
+            v.changeDirection());
+        }
         for (let i = 0; i < this.mBubbleArr.length; i++) {
             let bubble = this.mBubbleArr[i];
-            if (this.frameCount % this.frameMod === 0) {
+           /* if (changeDir === 0) {
                 bubble.changeDirection();
-            }
+            }*/
             bubble.updateSpeed();
             if (!this.mShield.checkCollision(bubble)) {
                 bubble.checkGameAreaCollision();
             }
             bubble.move();
         }
-
+        let trovato = false;
+        let bubble;
+        let intersectionLen;
         for (let i = 0; i < this.mBubbleArr.length; i++) {
-            let bubble = this.mBubbleArr[i];
-            let intersectionLen = this.mBubble.collideOnBubble(bubble);
+            bubble = this.mBubbleArr[i];
+            intersectionLen = this.mBubble.collideOnBubble(bubble);
             if (intersectionLen > 0) {
+                trovato = true;
                 Game.bubbleCollidingLogic(this.mBubble, bubble, intersectionLen);
                 this.bubbleKillLogic(bubble, i);
+                // UPDATE CLASSIFICA DATA STRUCTURE già senza player
             }
         }
         this.bubbleKillLogic(this.mBubble);
-
+        if(trovato){
+            this.mBubbleArr.sort(function (b1,b2) {
+                return b1.radius - b2.radius;
+            });
+            this.updateRankingUi();
+            this.updateLifeUi();
+            // UPDATE VITA DATA STRUCTURE
+            // DRAW VITA
+            // DRAW CLASSIFICA
+        }
         this.frameCount++;
         if (this.frameCount > this.frameMod) {
             this.frameCount = 1;
@@ -171,26 +232,11 @@ class Game {
         this.ctx.restore();
 
         //UI
-        this.uictx.save();
-        this.uictx.scale(1/this.scaleToCover,1/this.scaleToCover);
-        this.uictx.translate(-this.leftRightMargin /*/ this.scaleToCover*/, -this.topBottomMargin /*/ this.scaleToCover*/);
-        let fontSize = Math.round(16 * this.scaleToCover);
-        this.uictx.font = fontSize+'px serif';
-        this.uictx.textBaseline = 'top';
-        this.uictx.color = 'white';
-        let txt = 'TEXT1';
-        let measure = this.uictx.measureText(txt).width;
-        this.uictx.clearRect(0, 0, measure, fontSize);
-        this.uictx.fillText(txt, 0, 0);
-        txt = 'TEXT2';
-        measure = this.uictx.measureText(txt).width;
-        this.uictx.clearRect(0, fontSize, measure, fontSize);
-        this.uictx.fillText(txt, 0, fontSize);
-        txt = 'TEXT3';
-        measure = this.uictx.measureText(txt).width;
-        this.uictx.clearRect(window.innerWidth-measure,0, measure, fontSize);
-        this.uictx.fillText(txt,window.innerWidth/*/this.scaleToCover*/-measure,0);
-        this.uictx.restore();
+        /*this.mGameUi.saveCtx();
+        this.mGameUi.scaleCtx(1 / this.scaleToCover, 1 / this.scaleToCover);
+        this.mGameUi.translateCtx(-this.leftRightMargin, -this.topBottomMargin);
+        this.mGameUi.draw();
+        this.mGameUi.restoreCtx();*/
     }
 
     spawnBubble() {
