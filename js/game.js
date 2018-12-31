@@ -9,9 +9,6 @@
 class Game {
     constructor() {
         this.canvas = document.getElementById("bbCanvas");
-        /*this.uicanvas = document.getElementById("uiCanvas");
-        this.uictx = this.uicanvas.getContext("2d");
-        this.uictx.shadowBlur = 0;*/
         this.ctx = this.canvas.getContext("2d", {alpha: false});
         this.ctx.shadowBlur = 0;
         this.stage = document.getElementById("content");
@@ -96,7 +93,7 @@ class Game {
         this.mGameUi.scaleCtx(1 / this.scaleToCover, 1 / this.scaleToCover);
         this.mGameUi.translateCtx(-this.leftRightMargin, -this.topBottomMargin);
         // Per ora gli passo tutto
-        this.mGameUi.drawUserLife(this.mBubble.radius);
+        this.mGameUi.drawUserLife(this.mBubble.radius - Bubble.getMinRadius());
         this.mGameUi.restoreCtx();
     }
 
@@ -105,7 +102,7 @@ class Game {
         let gameHeight = background.height;
         let canvasHalfWidth = this.canvas.width / 2;
         let canvasHalfHeight = this.canvas.height / 2;
-        let radius = 30;
+        let radius = 20;
         //let leftOffset = getRandomInteger(canvasHalfWidth + radius - gameWidth, canvasHalfWidth - radius);
         //let topOffset = getRandomInteger(canvasHalfHeight + radius - gameHeight, canvasHalfHeight - radius);
         let leftOffset = canvasHalfWidth + radius - gameWidth;
@@ -136,17 +133,18 @@ class Game {
         let scaleY = window.innerHeight / canvasHeight;
         //let scaleToFit = Math.min(scaleX, scaleY);
         this.scaleToCover = Math.max(scaleX, scaleY);
-        this.stage.style.transformOrigin = '0 0'; //scale from top left
+        this.stage.style.transformOrigin = '0 0'; 
         this.stage.style.transform = 'scale(' + this.scaleToCover + ')';
         this.topBottomMargin = Math.round((window.innerHeight - (canvasHeight * this.scaleToCover)) / 2);
         this.leftRightMargin = Math.round((window.innerWidth - (canvasWidth * this.scaleToCover)) / 2);
-        this.stage.style.margin = this.topBottomMargin + "px " + this.leftRightMargin + "px "/* + this.topBottomMargin + "px " + this.leftRightMargin + "px"*/;
-
+        this.stage.style.margin = this.topBottomMargin + "px " + this.leftRightMargin + "px ";
         // UI
         this.mGameUi.clearAll();
-        this.mGameUi.setFontSize = Math.round(16 * this.scaleToCover);
-        this.updateRankingUi();
+        //this.mGameUi.setFontSize = Math.round(16 * this.scaleToCover);
+        this.mGameUi.updateScaleRatio(this.scaleToCover);
+        this.updateRankingUi();     
         this.updatePlayerCounterUi();
+        this.updateLifeUi();
         console.log("MARGINE " + this.leftRightMargin + " " + this.topBottomMargin);
         //console.log("SCALE FOR WINDOW RESIZE");
     }
