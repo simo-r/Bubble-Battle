@@ -1,5 +1,5 @@
 class Bubble {
-    constructor(x, y, radius, speedX, speedY, color, gameArea) {
+    constructor(x, y, radius, speedX, speedY, color, gameArea,name) {
         this.x = x;
         this.y = y;
         this.radius = radius;
@@ -11,6 +11,7 @@ class Bubble {
         this.speedY = speedY;
         this.keys = {};
         this.bumping = false;
+        this.name = name;
     }
 
     static getMinRadius() {
@@ -35,7 +36,7 @@ class Bubble {
         ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
         ctx.fillStyle = this.color;
         ctx.fill();
-            
+        
     }
 
     updateSpeed() {

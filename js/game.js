@@ -23,6 +23,9 @@ class Game {
         this.topBottomMargin = 0;
         this.leftRightMargin = 0;
         this.scaleToCover = 0;
+        this.lastCalledTime=0;
+        this.fps = 0;
+        this.delta = 0;
     }
 
     static createGame(background) {
@@ -84,7 +87,7 @@ class Game {
         this.mGameUi.scaleCtx(1 / this.scaleToCover, 1 / this.scaleToCover);
         this.mGameUi.translateCtx(-this.leftRightMargin, -this.topBottomMargin);
         // Per ora gli passo tutto
-        this.mGameUi.drawRanking(this.mBubbleArr);
+        this.mGameUi.drawRanking(this.mBubbleArr,this.mBubble);
         this.mGameUi.restoreCtx();
     }
 
@@ -110,10 +113,10 @@ class Game {
         this.mBackground = BackgroundComponent.createBackground(leftOffset, topOffset, background);
         this.mGameUi = new GameUi();
         //let bgCallback = this.mBackground.getBubbleCallbacks();
-        this.mBubble = UserBubble.createUserBubble(canvasHalfWidth, canvasHalfHeight, radius, 0, 0, getRandomColor(), this.mBackground);
+        this.mBubble = UserBubble.createUserBubble(canvasHalfWidth, canvasHalfHeight, radius, 0, 0, getRandomColor(), this.mBackground,0);
         this.mShield = Shield.createShield(this.canvas, this.mBackground);
-        for (let i = 0; i < 100; i++){
-            this.spawnBubble();
+        for (let i = 0; i < 8; i++){
+            this.spawnBubble(i+1);
         }
         this.mBubbleArr.sort(function (b1,b2) {
             return b1.getRadius - b2.getRadius;
@@ -150,6 +153,14 @@ class Game {
     }
 
     gameLoop() {
+        if(!this.lastCalledTime) {
+            this.lastCalledTime = Date.now();
+            this.fps = 0;
+            return;
+        }
+        this.delta = (Date.now() - this.lastCalledTime)/1000;
+        this.lastCalledTime = Date.now();
+        this.fps = 1/this.delta;
         //COLLIDING LOGIC FOR-EACH CIRCLE
         this.move();
         this.draw();
@@ -195,14 +206,12 @@ class Game {
         }
         this.bubbleKillLogic(this.mBubble);
         if(trovato){
+            // TODO REFACTOR THIS SORT
             this.mBubbleArr.sort(function (b1,b2) {
                 return b1.radius - b2.radius;
             });
             this.updateRankingUi();
             this.updateLifeUi();
-            // UPDATE VITA DATA STRUCTURE
-            // DRAW VITA
-            // DRAW CLASSIFICA
         }
         this.frameCount++;
         if (this.frameCount > this.frameMod) {
@@ -228,7 +237,6 @@ class Game {
         this.ctx.translate(this.mBackground.x, this.mBackground.y);
         this.mShield.draw(this.ctx);
         this.ctx.restore();
-
         //UI
         /*this.mGameUi.saveCtx();
         this.mGameUi.scaleCtx(1 / this.scaleToCover, 1 / this.scaleToCover);
@@ -237,7 +245,7 @@ class Game {
         this.mGameUi.restoreCtx();*/
     }
 
-    spawnBubble() {
+    spawnBubble(i) {
         //const radius = 30;
         const radius = getRandomInteger(25, 40);
         const x = getRandomInteger(this.mBackground.x + radius, this.mBackground.x + this.mBackground.gameWidth - radius);
@@ -248,7 +256,7 @@ class Game {
         //(Math.random() * (1 + 1) - 1);
         const speedX = 0;
         const speedY = 0;
-        const newCircle = new EnemyBubble(x, y, radius, speedX, speedY, getRandomColor(), this.mBackground);
+        const newCircle = new EnemyBubble(x, y, radius, speedX, speedY, getRandomColor(), this.mBackground,i);
         this.mBubbleArr.push(newCircle);
     }
 

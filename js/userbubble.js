@@ -1,10 +1,10 @@
 class UserBubble extends Bubble {
-    constructor(x, y, radius, speedX, speedY, color, gameArea) {
-        super(x, y, radius, speedX, speedY, color, gameArea);
+    constructor(x, y, radius, speedX, speedY, color, gameArea,name) {
+        super(x, y, radius, speedX, speedY, color, gameArea,name);
     }
 
-    static createUserBubble(x, y, radius, speedX, speedY, color, gameArea) {
-        let tmpUserBubble = new UserBubble(x, y, radius, speedX, speedY, color, gameArea);
+    static createUserBubble(x, y, radius, speedX, speedY, color, gameArea,name) {
+        let tmpUserBubble = new UserBubble(x, y, radius, speedX, speedY, color, gameArea,name);
         UserBubble.addKeyListeners(tmpUserBubble);
         return tmpUserBubble;
     }

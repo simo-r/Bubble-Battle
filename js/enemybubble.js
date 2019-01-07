@@ -1,6 +1,6 @@
 class EnemyBubble extends Bubble {
-    constructor(x, y, radius, speedX, speedY, color, gameArea) {
-        super(x, y, radius, speedX, speedY, color, gameArea);
+    constructor(x, y, radius, speedX, speedY, color, gameArea,name) {
+        super(x, y, radius, speedX, speedY, color, gameArea,name);
         //DEBUG
         this.keys = getRandomWASD();
         this.oldGameAreaX = this.gameArea.x;
