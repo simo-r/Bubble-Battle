@@ -9,7 +9,6 @@ class UserBubble extends Bubble {
         return tmpUserBubble;
     }
     
-    //OWN
     static addKeyListeners(bubble) {
         let keyDownFun = function (e) {
             if ((e.code === 'KeyW' || e.code === 'KeyA' || e.code === 'KeyS' || e.code === 'KeyD')) {
@@ -24,15 +23,17 @@ class UserBubble extends Bubble {
         window.addEventListener('keydown', keyDownFun);
         window.addEventListener('keyup', keyUpFun);
     }
-
-    //OVERRIDE + SUPER (DONE)
+    
+    // TODO [TESTING] Vedi se si può rimuovere quell'if
     updateSpeed() {
-        if (!(Object.keys(this.keys).length === 0 && this.keys.constructor === Object)) {
+        //if (!(Object.keys(this.keys).length === 0 && this.keys.constructor === Object)) {
             super.updateSpeed();
-        }
+        //}
     }
 
-    //OVERRIDE (DONE) //TODO VEDI SE SI PUò NON FARE L'OVERRIDE
+    /**
+     * Override
+     */
     checkXBoundaries() {
         let isOutOfXBounds = this.gameArea.isOutOfXBounds(this.x, this.radius);
         if (isOutOfXBounds) {
@@ -45,7 +46,9 @@ class UserBubble extends Bubble {
         }
     }
 
-    //OVERRIDE (DONE)
+    /**
+     * Override
+     */
     checkYBoundaries() {
         let isOutOfYBounds = this.gameArea.isOutOfYBounds(this.y, this.radius);
         if (isOutOfYBounds) {

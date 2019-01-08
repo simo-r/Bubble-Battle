@@ -1,5 +1,5 @@
 class Bubble {
-    constructor(x, y, radius, speedX, speedY, color, gameArea,name) {
+    constructor(x, y, radius, speedX, speedY, color, gameArea, name) {
         this.x = x;
         this.y = y;
         this.radius = radius;
@@ -30,15 +30,28 @@ class Bubble {
         return this.radius;
     }
 
+    get getName() {
+        return this.name;
+    }
+
 
     draw(ctx) {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
         ctx.fillStyle = this.color;
         ctx.fill();
-        
+
     }
 
+    checkGameAreaCollision() {
+        this.checkXBoundaries();
+        this.checkYBoundaries();
+    }
+
+    /**
+     * Aggiorna la velocità sull'asse delle ascisse e delle ordinate
+     * Se la bubble si è scontrata sullo shield resetto le velocità.
+     */
     updateSpeed() {
         if (this.bumping) {
             this.speedX = 0;
@@ -50,36 +63,44 @@ class Bubble {
         }
     }
 
-    //OVERRIDE
+    /**
+     * Aggiorna la velocità sull'asse delle ascisse a seconda
+     * della combinazione di tasti premuta.
+     */
     updateSpeedX() {
         if ((this.keys['KeyD'] && this.keys['KeyA']) ||
             (this.speedX !== 0 && !(this.keys['KeyD'] || this.keys['KeyA']))) {
             this.slowDownX();
         } else if (this.keys['KeyA']) {
             this.moveLeft();
-
         } else if (this.keys['KeyD']) {
             this.moveRight();
 
         }
     }
 
+    /**
+     * Aggiorna la velocità sull'asse delle ordinate a seconda
+     * della combinazione di tasti premuta.
+     */
     updateSpeedY() {
         if ((this.keys['KeyS'] && this.keys['KeyW']) ||
             (this.speedY !== 0 && !(this.keys['KeyS'] || this.keys['KeyW']))) {
-            
             this.slowDownY();
-            //RALLENTA
         } else if (this.keys['KeyW']) {
             this.moveUp();
-            //MOVE LEFT
         } else if (this.keys['KeyS']) {
             this.moveDown();
-            //MOVE RIGHT
         }
     }
 
 
+    /**
+     * Controlla i bound sull'asse delle ascisse con la game area.
+     * Modifica la velocità ed i tasti premuti nel caso sia stato
+     * riscontrato uno scontro e riposiziona la bolla al limite 
+     * della game area.
+     */
     checkXBoundaries() {
         let isOutOfXBounds = this.gameArea.isOutOfXBounds(this.x, this.radius);
         if (isOutOfXBounds) {
@@ -97,6 +118,12 @@ class Bubble {
         }
     }
 
+    /**
+     *  Controlla i bound sull'asse delle ordinate con la game area
+     *  Modifica la velocità ed i tasti premuti nel caso sia stato
+     *  riscontrato uno scontro e riposiziona la bolla al limite
+     * della game area.
+     */
     checkYBoundaries() {
         let isOutOfYBounds = this.gameArea.isOutOfYBounds(this.y, this.radius);
         if (isOutOfYBounds) {
@@ -106,17 +133,24 @@ class Bubble {
                 this.y = this.gameArea.y + this.radius;
                 this.keys['KeyS'] = true;
                 this.keys['KeyW'] = false;
-                //this.keys = getRandomWASD();
             } else if (isOutOfYBounds === 1) {
                 this.y = this.gameArea.y + this.gameArea.gameHeight - this.radius;
                 this.keys['KeyS'] = false;
                 this.keys['KeyW'] = true;
-                //this.keys = getRandomWASD();
             }
         }
     }
 
-    //OWN
+    /**
+     * Decrementa la velocità sull'asse delle ascisse di un fattore
+     * uguale all'accelerazione per l'attrito tra le due bolle che collidono
+     * finché non raggiunge la velocità minima
+     *
+     * @param coeff coefficiente di attrito tra due bubble che collidono,
+     *        coeff = 1 nel caso in cui non ci sia alcuna collisione
+     *        
+     * @param lowerBound velocità minima
+     */
     slowDownX(coeff = 1, lowerBound = 0) {
         if (this.speedX === 0) return;
         if (this.speedX > lowerBound) {
@@ -130,7 +164,16 @@ class Bubble {
         }
     }
 
-    //OWN
+    /**
+     * Decrementa la velocità sull'asse delle ordinate di un fattore
+     * uguale all'accelerazione per l'attrito tra le due bolle che collidono
+     * finché non raggiunge la velocità minima
+     *
+     * @param coeff coefficiente di attrito tra due bubble che collidono,
+     *        coeff = 1 nel caso in cui non ci sia alcuna collisione
+     *
+     * @param lowerBound velocità minima
+     */
     slowDownY(coeff = 1, lowerBound = 0) {
         if (this.speedY === 0) return;
         if (this.speedY > lowerBound) {
@@ -180,6 +223,14 @@ class Bubble {
         }
     }
 
+    /**
+     * Logica di collisione con lo shield.
+     * Inverte le velocità sugli assi ed imposta
+     * il valore di bumping a true.
+     * 
+     * @param x ascissa del punto di collisione
+     * @param y ordinata del punto di collisione
+     */
     collideOnShield(x, y) {
         if (this.speedX === 0) {
             if (this.x < x) {
@@ -197,27 +248,34 @@ class Bubble {
         }
         this.speedX *= -1;
         this.speedY *= -1;
-
         this.bumping = true;
-        //console.log("SPEED X AFTER " + this.speedX + " SPEED Y AFTER " + this.speedY);
-
     }
 
-    checkGameAreaCollision() {
-        this.checkXBoundaries();
-        this.checkYBoundaries();
-    }
-
+    /**
+     * 
+     * @param bubble bubble con cui potrebbe collidere
+     * @returns > 0 che indica la quantità di intersezione
+     *          tra le due bolle, altrimenti >= 0 se non collidono
+     */
     // > 0 se collide, <= 0 altrimenti
-    collideOnBubble(circle) {
-        let r = this.radius + circle.radius;
-        let x = this.x - circle.x;
-        let y = this.y - circle.y;
+    collideOnBubble(bubble) {
+        let r = this.radius + bubble.radius;
+        let x = this.x - bubble.x;
+        let y = this.y - bubble.y;
         return r - Math.sqrt((x * x) + (y * y));
     }
 
+    /**
+     * Implementa la collisione con un'altra bolla.
+     * Cambia il valore del raggio di una quantità dipendente
+     * da radiusRatio e rallenta la velocità di un fattore
+     * uguale al rapporto tra hit e il diametro della bolla 
+     * considerata.
+     * 
+     * @param radiusRatio raggioBubbleMinore/raggioBubbleMaggiore
+     * @param hit lunghezza dell'intersezione tra le due bolle
+     */
     colliding(radiusRatio = 0, hit = 2 * this.radius) {
-        // 0<=ratio<=1
         let ratio = (hit / (2 * this.radius)).toFixed(2);
         this.radius -= radiusRatio /*Da moltiplicare*/;
         if (this.radius > Bubble.getMaxRadius()) {
@@ -226,8 +284,5 @@ class Bubble {
         this.maxSpeed = this.getCurrentMaxSpeed;
         this.slowDownX(ratio, this.acceleration);
         this.slowDownY(ratio, this.acceleration);
-        //console.log("RATIO " + ratio + " RADIUS RATIO " + radiusRatio);
     }
-
-
 }

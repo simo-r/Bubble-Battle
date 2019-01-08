@@ -20,10 +20,10 @@ class ShieldPoint {
         return new ShieldPoint(mouseX, mouseY, background.x, background.y);
     }
 
-    distanceTo(p2) {
-        return Math.sqrt(
-            Math.pow(p2.x - (this.x + p2.backgroundX - this.backgroundX), 2) +
-            Math.pow(p2.y - (this.y + p2.backgroundY - this.backgroundY), 2));
+    static dist(x1, y1, x2, y2) {
+        let x = x1 - x2;
+        let y = y1 - y2;
+        return Math.sqrt(x * x + y * y);
     }
 
     set setDrag(v) {
@@ -56,6 +56,12 @@ class ShieldPoint {
     
     get getGameY(){
         return this.y - this.backgroundY;
+    }
+
+    distanceTo(p2) {
+        return Math.sqrt(
+            Math.pow(p2.x - (this.x + p2.backgroundX - this.backgroundX), 2) +
+            Math.pow(p2.y - (this.y + p2.backgroundY - this.backgroundY), 2));
     }
     
     toString(){

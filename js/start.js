@@ -17,17 +17,8 @@ $('document').ready(function () {
 });
 
 function renderLoop() {
-   /* if(!lastCalledTime) {
-        lastCalledTime = Date.now();
-        fps = 0;
-        return;
-    }
-    delta = (Date.now() - lastCalledTime)/1000;
-    lastCalledTime = Date.now();
-    fps = 1/delta;*/
     mGame.gameLoop();
     reqId = window.requestAnimationFrame(renderLoop);
-    // TROPPO LENTO
     if (mGame.isGameOver) {
         window.cancelAnimationFrame(reqId);
     }

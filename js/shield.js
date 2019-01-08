@@ -1,6 +1,5 @@
 class Shield {
     constructor() {
-        // Gli elementi sono di tipo ShieldPoint
         this.shieldPoints = [];
         this.paint = false;
         this.isShieldOn = false;
@@ -31,7 +30,6 @@ class Shield {
             let shieldPoint = ShieldPoint.newPoint(e, canvas, background);
             shieldPoint.setDrag = true;
             shield.increaseShieldLength(shieldPoint);
-            //CHECK COLLISION WHILE DRAWING
             if (shield.shieldLength < shield.maxShieldLength) {
                 shield.shieldPoints.push(shieldPoint);
             }
@@ -57,6 +55,40 @@ class Shield {
         window.onmouseleave = mouseUpFun;
     }
 
+    static pointBubbleDistance(px, py, cx, cy, r) {
+        //Distanza punto - centro bubble
+        let distX = px - cx;
+        let distY = py - cy;
+        let distance = Math.sqrt((distX * distX) + (distY * distY));
+
+        //Se la distanza è minore del raggio allora è dentro
+        if (distance <= r) {
+            return distance - r;
+        }
+        return false;
+    }
+
+    static linePoint(x1, y1, x2, y2, px, py) {
+
+        // get distance from the point to the two ends of the line
+        let d1 = ShieldPoint.dist(px, py, x1, y1);
+        let d2 = ShieldPoint.dist(px, py, x2, y2);
+
+        // get the length of the line
+        let lineLen = ShieldPoint.dist(x1, y1, x2, y2);
+
+        // since floats are so minutely accurate, add
+        // a little buffer zone that will give collision
+        let buffer = 0.1;    // higher # = less accurate
+
+        // if the two distances are equal to the line's
+        // length, the point is on the line!
+        // note we use the buffer here to give a range,
+        // rather than one #
+        return d1 + d2 >= lineLen - buffer && d1 + d2 <= lineLen + buffer;
+
+    }
+
     increaseShieldLength(newPoint) {
         let previousPoint = this.shieldPoints[this.shieldPoints.length - 1];
         this.shieldLength += previousPoint.distanceTo(newPoint);
@@ -64,7 +96,6 @@ class Shield {
 
     draw(ctx) {
         if (this.shieldPoints.length <= 1) return;
-        // Posso usare una canonincal spline per disegnare 
         ctx.strokeStyle = '#df4b26';
         ctx.lineJoin = 'round';
         ctx.lineWidth = 5;
@@ -72,7 +103,20 @@ class Shield {
         let yPos;
         let currPoint;
         let prevPoint;
-        for (let i = 0; i < this.shieldPoints.length; i++) {
+        // TODO [TESTING] THIS NEW IMPLEMENTATION
+        ctx.beginPath();
+        ctx.moveTo(this.shieldPoints[0].getX - this.shieldPoints[0].getBackgroundX,
+                    this.shieldPoints[0].getY - this.shieldPoints[0].getBackgroundY);
+        for(let i = 1; i < this.shieldPoints.length; i++){
+            currPoint = this.shieldPoints[i];
+            xPos = currPoint.getX - currPoint.getBackgroundX;
+            yPos = currPoint.getY - currPoint.getBackgroundY;
+            ctx.lineTo(xPos,yPos);
+            ctx.moveTo(xPos,yPos);
+        }
+        ctx.closePath();
+        ctx.stroke();
+        /*for (let i = 0; i < this.shieldPoints.length; i++) {
             ctx.beginPath();
             currPoint = this.shieldPoints[i];
             if (this.shieldPoints[i].isDrag && i) {
@@ -81,7 +125,7 @@ class Shield {
                 yPos = prevPoint.getY - prevPoint.getBackgroundY;
                 ctx.moveTo(xPos, yPos);
             } else {
-                xPos = (currPoint.getX - 1) - currPoint.getBackgroundX;
+                xPos = (currPoint.getX /!*- 1*!/) - currPoint.getBackgroundX;
                 yPos = currPoint.getY - currPoint.getBackgroundY;
                 ctx.moveTo(xPos, yPos);
             }
@@ -90,7 +134,7 @@ class Shield {
             ctx.lineTo(xPos, yPos);
             ctx.closePath();
             ctx.stroke();
-        }
+        }*/
     }
 
     clearOldShield() {
@@ -99,6 +143,7 @@ class Shield {
         this.shieldLength = 0;
     }
 
+    // TODO CAPIRE QUESTA IMPLEMENTAZIONE
     checkCollision(bubble) {
         let pointOld;
         let pointNew;
@@ -128,8 +173,8 @@ class Shield {
             x2 = pointNew.x - pointNew.backgroundX;
             y2 = pointNew.y - pointNew.backgroundY;
             // Controllo se uno dei due estremi del segmento è all'interno della circonf
-            inside1 = this.pointCircle(x1, y1, cx, cy, bubble.radius);
-            inside2 = this.pointCircle(x2, y2, cx, cy, bubble.radius);
+            inside1 = Shield.pointBubbleDistance(x1, y1, cx, cy, bubble.radius);
+            inside2 = Shield.pointBubbleDistance(x2, y2, cx, cy, bubble.radius);
             if (inside1 !== false) {
                 collisionDetected = this.collisionDetected(bubble, x1 + bubble.gameArea.getX, y1 + bubble.gameArea.getY);
                 find = true;
@@ -145,7 +190,7 @@ class Shield {
                 closestX = x1 + (dot * (x2 - x1));
                 closestY = y1 + (dot * (y2 - y1));
                 // Se il punto sta sul segmento
-                if (this.linePoint(x1, y1, x2, y2, closestX, closestY)) {
+                if (Shield.linePoint(x1, y1, x2, y2, closestX, closestY)) {
                     distX = closestX - cx;
                     distY = closestY - cy;
                     distance = Math.sqrt(distX * distX + distY * distY);
@@ -153,7 +198,6 @@ class Shield {
                         collisionDetected = this.collisionDetected(bubble,
                             (closestX + bubble.gameArea.getX),
                             closestY + bubble.gameArea.getY);
-                        //if(!find) i =0;
                         find = true;
                     }
                 }
@@ -165,7 +209,6 @@ class Shield {
 
     // True se lo shield è on e collide, false se collide e lo shield è off
     collisionDetected(bubble, x1, y1) {
-        // Se lo shield è attivo la bubble collide altrimenti lo shield si cancella
         if (this.isShieldOn) {
             bubble.collideOnShield(x1, y1);
             return true;
@@ -176,45 +219,11 @@ class Shield {
 
     }
 
-    pointCircle(px, py, cx, cy, r) {
-        //Distanza punto - centro bubble
-        let distX = px - cx;
-        let distY = py - cy;
-        let distance = Math.sqrt((distX * distX) + (distY * distY));
+    
 
-        //Se la distanza è minore del raggio allora è dentro
-        if (distance <= r) {
-            return distance - r;
-        }
-        return false;
-    }
+    
 
-    dist(x1, y1, x2, y2) {
-        let x = x1 - x2;
-        let y = y1 - y2;
-        return Math.sqrt(x * x + y * y);
-    }
-
-    linePoint(x1, y1, x2, y2, px, py) {
-
-        // get distance from the point to the two ends of the line
-        let d1 = this.dist(px, py, x1, y1);
-        let d2 = this.dist(px, py, x2, y2);
-
-        // get the length of the line
-        let lineLen = this.dist(x1, y1, x2, y2);
-
-        // since floats are so minutely accurate, add
-        // a little buffer zone that will give collision
-        let buffer = 0.1;    // higher # = less accurate
-
-        // if the two distances are equal to the line's
-        // length, the point is on the line!
-        // note we use the buffer here to give a range,
-        // rather than one #
-        return d1 + d2 >= lineLen - buffer && d1 + d2 <= lineLen + buffer;
-
-    }
+    
 
     checkGameArea(gameWidth,gameHeight) {
         this.shieldPoints.forEach(v => {

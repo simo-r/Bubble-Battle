@@ -20,76 +20,70 @@ class GameUi {
     static getDefaultFontSize() {
         return 16;
     }
-
-
+    
     clearAll() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-    drawPlayerCounter(counter) {
-        const txt = " PLAYER COUNTER ";
+    drawPlayerCounter(counter, killedPlayers) {
+        const txt = " ENEMY COUNTER ";
         this.ctx.textBaseline = 'top';
         this.ctx.clearRect(0, 0, this.ctx.measureText(txt + "100").width, this.fontSize);
+        this.ctx.clearRect(window.innerWidth/2, 0, this.ctx.measureText(counter + killedPlayers + '').width, this.fontSize);
         this.ctx.fillText(txt + counter, 0, 0);
+        this.ctx.fillText(killedPlayers, window.innerWidth / 2, 0);
     }
 
     drawUserLife(life) {
         let tot = Math.round(life * this.lifePercentage);
-        //console.log("TOT " + tot + " LIFE " + life + " PERCENTAGE " + this.lifePercentage);
         const x = (window.innerWidth - this.lifeWidth) / 2;
         const y = window.innerHeight - Math.round(this.lifeHeight * 1.5);
         this.ctx.clearRect(x, y, this.lifeWidth, this.lifeHeight);
-        console.log("TOT " + tot + " LIFE WIDTH " + this.lifeWidth + " LIFE HEIGHT " + this.lifeHeight);
-        /*let gradient = this.ctx.createLinearGradient(x, 0, x+tot+5, 0);
-        gradient.addColorStop(0, 'red');
-        gradient.addColorStop(1, 'white');*/
         this.ctx.fillStyle = 'red';
         this.ctx.fillRect(x, y, tot, this.lifeHeight);
         this.ctx.strokeStyle = 'blue';
         this.ctx.strokeRect(x, y, this.lifeWidth, this.lifeHeight);
     }
 
+    //TODO REFACTOR THIS CODE
     drawRanking(players, userBubble) {
         this.ctx.textBaseline = 'top';
         //this.ctx.fontSize = 45+'px';
         const measure = this.ctx.measureText("10. 100").width;
         this.ctx.clearRect(window.innerWidth - measure, 0, measure, this.fontSize * 11);
         if (players.length === 0) {
-            this.ctx.fillText("1. " + (userBubble.name), window.innerWidth - measure, 0);
+            this.ctx.fillText("1. " + (userBubble.getName), window.innerWidth - measure, 0);
             return;
         }
         let currBubble;
-        let i = players.length-1;
+        let i = players.length - 1;
         let j = 1;
         let find = false;
+        // Scrivo la top 10
         while (i >= 0 && j <= 10) {
-            console.log(" I " + i);
             currBubble = players[i];
             if (!find && userBubble.getRadius >= currBubble.getRadius) {
                 find = true;
-                //currBubble = userBubble;
-                //this.ctx.fillText(j + ". " + (currBubble.name), window.innerWidth - measure, this.fontSize * (i - 1));
-                this.ctx.fillText(j + ". " + (userBubble.name), window.innerWidth - measure, this.fontSize * (j - 1));
-                /*i+=2;*/
-            }else{
-                this.ctx.fillText(j + ". " + (currBubble.name), window.innerWidth - measure, this.fontSize * (j - 1));
+                this.ctx.fillText(j + ". " + (userBubble.getName), window.innerWidth - measure, this.fontSize * (j - 1));
+            } else {
+                this.ctx.fillText(j + ". " + (currBubble.getName), window.innerWidth - measure, this.fontSize * (j - 1));
                 --i;
             }
             ++j;
         }
-        if(!find){
-            console.log("NOT FIND " );
-            for(let i = players.length-1; i >=0; i--){
-                if(userBubble.getRadius >= players[i].getRadius){
-                    this.ctx.fillText((i+1) + ". " + (userBubble.name), window.innerWidth - measure, this.fontSize * (j - 1));
+        if (!find) {
+            // Se non sono in top 10, ricerco la mia vera posizione
+            console.log("NOT FIND ");
+            console.log(" I DOPO " + i);
+            for (let h = i; h >= 0; h--) {
+                if (userBubble.getRadius >= players[h].getRadius) {
+                    this.ctx.fillText((h + 1) + ". " + (userBubble.getName), window.innerWidth - measure, this.fontSize * (j - 1));
                     return;
                 }
             }
-            // Se arrivo qui vuol dire che sono la bubble più piccola
-            this.ctx.fillText((players.length+1) + ". " + (userBubble.name), window.innerWidth - measure, this.fontSize * (j - 1));
+            // Se sono la bubble più piccola allora sono all'ultima posizione
+            this.ctx.fillText((players.length + 1) + ". " + (userBubble.getName), window.innerWidth - measure, this.fontSize * (j - 1));
         }
-        
-
     }
 
     saveCtx() {
@@ -108,12 +102,17 @@ class GameUi {
         this.ctx.restore();
     }
 
+    /**
+     * Aggiorna tutti i parametri della UI secondo
+     * il nuovo rapporto.
+     * 
+     * @param ratio nuovo scale ratio della finestra di gioco
+     */
     updateScaleRatio(ratio) {
         this.fontSize = (GameUi.getDefaultFontSize() * ratio).toFixed(2);
         this.lifeHeight = (GameUi.getDefaultLifeHeight() * ratio).toFixed(2);
         this.lifeWidth = (GameUi.getDefaultLifeWidth() * ratio).toFixed(2);
         this.lifePercentage = ((this.lifeWidth / (Bubble.getMaxRadius() - Bubble.getMinRadius()))).toFixed(2);
         this.ctx.font = this.fontSize + 'px Courier New';
-        console.log(" FONT SIZE " + this.fontSize);
     }
 }

@@ -1,11 +1,8 @@
-//TODO 
-// Rimuovere il keypress quando la window perde il focus
-// Inserire velocità e accelerazione min e max
-
 // TUTTO QUESTO FUNZIONA FINCHé MAXSPEED < RADIUS altrimenti potrebbe oltrepassare lo shield
 // per risolvere potrei fare l'intersezione tra i segmenti dello shield e il vettore spostamento
 // anzi meglio rappresentare il vettore spostamento come un rettangolo dato dalla somma 
 // dei quadrati che circoscrivono il cerchio e controllare se il rettangolo interseca un segmento
+
 class Game {
     constructor() {
         this.canvas = document.getElementById("bbCanvas");
@@ -24,6 +21,7 @@ class Game {
         this.leftRightMargin = 0;
         this.scaleToCover = 0;
         this.lastCalledTime=0;
+        this.totalEnemyBubble = 100;
         this.fps = 0;
         this.delta = 0;
     }
@@ -52,6 +50,18 @@ class Game {
         }
     }
 
+    get isGameOver() {
+        return this.gameOver;
+    }
+
+    /**
+     * Se il raggio della bolla è minore del minimo raggio
+     * allora elimina la bolla dall'array se questa era un'enemy bubble
+     * o termina il gioco se questa era l'user bubble
+     * 
+     * @param bubble bolla da controllare
+     * @param i indice della bolla nell'array, -1 se è user bubble
+     */
     bubbleKillLogic(bubble, i = -1) {
         if (bubble.getRadius < Bubble.getMinRadius()) {
             switch (i) {
@@ -64,8 +74,6 @@ class Game {
                     console.log("KILL");
                     this.mBubbleArr.splice(i, 1);
                     this.updatePlayerCounterUi();
-                   
-                    // DRAW PLAYER COUNTER
                     break;
             }
 
@@ -73,12 +81,11 @@ class Game {
         }
     }
     
-    // TODO TRASLA PER DEFINIRE IL SUO RETTANGOLO GIUSTO
     updatePlayerCounterUi(){
         this.mGameUi.saveCtx();
         this.mGameUi.scaleCtx(1 / this.scaleToCover, 1 / this.scaleToCover);
         this.mGameUi.translateCtx(-this.leftRightMargin, -this.topBottomMargin);
-        this.mGameUi.drawPlayerCounter(this.mBubbleArr.length);
+        this.mGameUi.drawPlayerCounter(this.mBubbleArr.length,this.totalEnemyBubble - this.mBubbleArr.length);
         this.mGameUi.restoreCtx();
     }
     
@@ -86,7 +93,6 @@ class Game {
         this.mGameUi.saveCtx();
         this.mGameUi.scaleCtx(1 / this.scaleToCover, 1 / this.scaleToCover);
         this.mGameUi.translateCtx(-this.leftRightMargin, -this.topBottomMargin);
-        // Per ora gli passo tutto
         this.mGameUi.drawRanking(this.mBubbleArr,this.mBubble);
         this.mGameUi.restoreCtx();
     }
@@ -95,46 +101,47 @@ class Game {
         this.mGameUi.saveCtx();
         this.mGameUi.scaleCtx(1 / this.scaleToCover, 1 / this.scaleToCover);
         this.mGameUi.translateCtx(-this.leftRightMargin, -this.topBottomMargin);
-        // Per ora gli passo tutto
         this.mGameUi.drawUserLife(this.mBubble.radius - Bubble.getMinRadius());
         this.mGameUi.restoreCtx();
     }
 
+    /**
+     * Crea i componenti del gioco 
+     * 
+     * @param background immagine del background
+     */
     createComponents(background) {
         let gameWidth = background.width;
         let gameHeight = background.height;
         let canvasHalfWidth = this.canvas.width / 2;
         let canvasHalfHeight = this.canvas.height / 2;
-        let radius = 20;
-        //let leftOffset = getRandomInteger(canvasHalfWidth + radius - gameWidth, canvasHalfWidth - radius);
-        //let topOffset = getRandomInteger(canvasHalfHeight + radius - gameHeight, canvasHalfHeight - radius);
-        let leftOffset = canvasHalfWidth + radius - gameWidth;
-        let topOffset = canvasHalfHeight + radius - gameHeight;
+        let radius = 30;
+        let leftOffset = getRandomInteger(canvasHalfWidth + radius - gameWidth, canvasHalfWidth - radius);
+        let topOffset = getRandomInteger(canvasHalfHeight + radius - gameHeight, canvasHalfHeight - radius);
+        //let leftOffset = canvasHalfWidth + radius - gameWidth;
+        //let topOffset = canvasHalfHeight + radius - gameHeight;
         this.mBackground = BackgroundComponent.createBackground(leftOffset, topOffset, background);
         this.mGameUi = new GameUi();
-        //let bgCallback = this.mBackground.getBubbleCallbacks();
         this.mBubble = UserBubble.createUserBubble(canvasHalfWidth, canvasHalfHeight, radius, 0, 0, getRandomColor(), this.mBackground,0);
         this.mShield = Shield.createShield(this.canvas, this.mBackground);
-        for (let i = 0; i < 8; i++){
-            this.spawnBubble(i+1);
+        for (let i = 0; i < this.totalEnemyBubble; i++){
+            this.mBubbleArr.push(this.spawnBubble(i+1));
         }
         this.mBubbleArr.sort(function (b1,b2) {
             return b1.getRadius - b2.getRadius;
         });
-        this.updateRankingUi();
-       /* for (let i = 0; i < 100; i++){
-            console.log(" BUBBLE " + i + " RADIUS " + this.mBubbleArr[i].getRadius);
-        }*/
-       
-        
+        this.updateRankingUi();        
     }
 
+    /**
+     * Logica quando viene rilevato un cambiamento 
+     * alla dimensione della finestra di gioco
+     */
     scaleForWindowResize() {
         let canvasWidth = this.canvas.width;
         let canvasHeight = this.canvas.height;
         let scaleX = window.innerWidth / canvasWidth;
         let scaleY = window.innerHeight / canvasHeight;
-        //let scaleToFit = Math.min(scaleX, scaleY);
         this.scaleToCover = Math.max(scaleX, scaleY);
         this.stage.style.transformOrigin = '0 0'; 
         this.stage.style.transform = 'scale(' + this.scaleToCover + ')';
@@ -143,15 +150,16 @@ class Game {
         this.stage.style.margin = this.topBottomMargin + "px " + this.leftRightMargin + "px ";
         // UI
         this.mGameUi.clearAll();
-        //this.mGameUi.setFontSize = Math.round(16 * this.scaleToCover);
         this.mGameUi.updateScaleRatio(this.scaleToCover);
         this.updateRankingUi();     
         this.updatePlayerCounterUi();
         this.updateLifeUi();
-        console.log("MARGINE " + this.leftRightMargin + " " + this.topBottomMargin);
-        //console.log("SCALE FOR WINDOW RESIZE");
     }
 
+    /**
+     * Richiama le funzione per muovere i 
+     * componenti e poi li disegna
+     */
     gameLoop() {
         if(!this.lastCalledTime) {
             this.lastCalledTime = Date.now();
@@ -166,47 +174,44 @@ class Game {
         this.draw();
     }
 
+    /**
+     * Muove i componenti del gioco e controlla
+     * le loro posizioni
+     */
     move() {
-        // CHECK SE LO SHIELD è FUORI DALLA GAME AREA
         this.mShield.checkGameArea(this.mBackground.gameWidth, this.mBackground.gameHeight);
-        // INIZIO MOVIMENTO BUBBLE UTENTE
         this.mBubble.updateSpeed();
         if (!this.mShield.checkCollision(this.mBubble)) {
             this.mBubble.checkGameAreaCollision();
         }
         this.mBackground.move(this.mBubble.speedX, this.mBubble.speedY);
-        // FINE MOVIMENTO BUBBLE UTENTE
+        
         if( this.frameCount % this.frameMod === 0){
             this.mBubbleArr.forEach( v =>
             v.changeDirection());
         }
         for (let i = 0; i < this.mBubbleArr.length; i++) {
             let bubble = this.mBubbleArr[i];
-           /* if (changeDir === 0) {
-                bubble.changeDirection();
-            }*/
             bubble.updateSpeed();
             if (!this.mShield.checkCollision(bubble)) {
                 bubble.checkGameAreaCollision();
             }
             bubble.move();
         }
-        let trovato = false;
+        let find = false;
         let bubble;
         let intersectionLen;
         for (let i = 0; i < this.mBubbleArr.length; i++) {
             bubble = this.mBubbleArr[i];
             intersectionLen = this.mBubble.collideOnBubble(bubble);
             if (intersectionLen > 0) {
-                trovato = true;
+                find = true;
                 Game.bubbleCollidingLogic(this.mBubble, bubble, intersectionLen);
                 this.bubbleKillLogic(bubble, i);
-                // UPDATE CLASSIFICA DATA STRUCTURE già senza player
             }
         }
         this.bubbleKillLogic(this.mBubble);
-        if(trovato){
-            // TODO REFACTOR THIS SORT
+        if(find){
             this.mBubbleArr.sort(function (b1,b2) {
                 return b1.radius - b2.radius;
             });
@@ -218,33 +223,29 @@ class Game {
             this.frameCount = 1;
         }
     }
-
-
+    
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.mBackground.draw(this.ctx);
         this.mBubbleArr.forEach(bubble => {
-            /*this.ctx.save();
-            this.ctx.translate(+this.mBackground.x - bubble.oldGameAreaX,+this.mBackground.y - bubble.oldGameAreaY);
-            */
             bubble.draw(this.ctx);
-            /*this.ctx.restore();*/
         });
+        this.ctx.save();
         this.mBubble.draw(this.ctx);
-        // Così evito di salvarmi il riferimento al background ALMENO nello shield
+        this.ctx.restore();
+        
         this.ctx.save();
         this.ctx.translate(this.mBackground.x, this.mBackground.y);
         this.mShield.draw(this.ctx);
         this.ctx.restore();
-        //UI
-        /*this.mGameUi.saveCtx();
-        this.mGameUi.scaleCtx(1 / this.scaleToCover, 1 / this.scaleToCover);
-        this.mGameUi.translateCtx(-this.leftRightMargin, -this.topBottomMargin);
-        this.mGameUi.draw();
-        this.mGameUi.restoreCtx();*/
     }
 
+    /**
+     * Crea una nuova bolla
+     * 
+     * @param i nome della bubble da creare
+     */
     spawnBubble(i) {
         //const radius = 30;
         const radius = getRandomInteger(25, 40);
@@ -252,15 +253,8 @@ class Game {
         const y = getRandomInteger(this.mBackground.y + radius, this.mBackground.y + this.mBackground.gameHeight - radius);
         //const x = this.mBackground.x + radius +5;
         //const y = this.mBackground.y + radius + 5;
-        //TODO RANDOMIZE THIS SPEED
-        //(Math.random() * (1 + 1) - 1);
         const speedX = 0;
         const speedY = 0;
-        const newCircle = new EnemyBubble(x, y, radius, speedX, speedY, getRandomColor(), this.mBackground,i);
-        this.mBubbleArr.push(newCircle);
-    }
-
-    get isGameOver() {
-        return this.gameOver;
+        return new EnemyBubble(x, y, radius, speedX, speedY, getRandomColor(), this.mBackground, i);
     }
 }

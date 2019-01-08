@@ -1,4 +1,3 @@
-//TODO Prova a fare il background usando CSS ( Mozilla guide)
 // Non la renderizzo off-screen perché l'Image effettua il load 
 // dell'intera bitmap in memoria rispettando le size specificate nell'svg.
 
@@ -14,6 +13,22 @@ class BackgroundComponent {
     static createBackground(x, y, bgImage) {
         return new BackgroundComponent(x, y, bgImage);
     }
+    
+    get gameWidth(){
+        return this.image.width;
+    }
+
+    get gameHeight(){
+        return this.image.height;
+    }
+
+    get getX(){
+        return this.x;
+    }
+
+    get getY(){
+        return this.y;
+    }
 
     move(speedX,speedY) {
         this.x -= speedX;
@@ -24,8 +39,14 @@ class BackgroundComponent {
         ctx.drawImage(this.image, this.x, this.y);
     }
     
-    /* X BOUNDS */
-
+    /**
+     * Controlla i bordi della game area sull'asse delle ascisse
+     *
+     * @param bubbleX centro della bolla
+     * @param bubbleRadius raggio della bolla
+     * @returns -1 se è fuori il bordo sinistro, 1 se è fuori il bordo destro
+     *          altrimenti false
+     */
     isOutOfXBounds(bubbleX, bubbleRadius) {
         let leftBound = (bubbleX - this.x - bubbleRadius);
         if(leftBound < 0) return -1;
@@ -33,30 +54,20 @@ class BackgroundComponent {
         if(rightBound > 0) return 1;
         return false;
     }
-    
-    /* Y BOUNDS */
-    
+   
+    /**
+     * Controlla i bordi della game area sull'asse delle ordinate
+     *
+     * @param bubbleY centro della bolla
+     * @param bubbleRadius raggio della bolla
+     * @returns -1 se è fuori il bordo superiore, 1 se è fuori il bordo inferiore
+     *          altrimenti false
+     */
     isOutOfYBounds(bubbleY,bubbleRadius){
         let topBound = bubbleY - this.y - bubbleRadius;
         let downBound = bubbleY - this.y + bubbleRadius - this.image.height;
         if(topBound < 0) return -1;
         if(downBound > 0) return 1;
         return false;
-    }
-    
-    get gameWidth(){
-        return this.image.width;
-    }
-    
-    get gameHeight(){
-        return this.image.height;
-    }
-    
-    get getX(){
-        return this.x;
-    }
-    
-    get getY(){
-        return this.y;
     }
 }
