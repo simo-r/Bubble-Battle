@@ -7,6 +7,14 @@ class GameUi {
         this.lifeHeight = GameUi.getDefaultLifeHeight();
         this.lifeWidth = GameUi.getDefaultLifeWidth();
         this.lifePercentage = 0;
+        this.userLifeX = 0;
+        this.userLifeY = 0;
+        this.enemyCounterText = " ENEMY COUNTER ";
+        this.enemyCounterTextMaxWidth = 0;
+        this.killCounterTextMaxWidth = 0;
+        this.halfWindowWidth = 0;
+        this.rankX = 0;
+        this.rankMaxWidth = 0;
     }
 
     static getDefaultLifeHeight() {
@@ -20,39 +28,46 @@ class GameUi {
     static getDefaultFontSize() {
         return 16;
     }
-    
+
     clearAll() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
     drawPlayerCounter(counter, killedPlayers) {
-        const txt = " ENEMY COUNTER ";
         this.ctx.textBaseline = 'top';
-        this.ctx.clearRect(0, 0, this.ctx.measureText(txt + "100").width, this.fontSize);
-        this.ctx.clearRect(window.innerWidth/2, 0, this.ctx.measureText(counter + killedPlayers + '').width, this.fontSize);
-        this.ctx.fillText(txt + counter, 0, 0);
-        this.ctx.fillText(killedPlayers, window.innerWidth / 2, 0);
+        // Clear enemy counter space
+        this.ctx.clearRect(0, 0, this.enemyCounterTextMaxWidth, this.fontSize);
+        // Clear kill counter space
+        this.ctx.clearRect(this.halfWindowWidth, 0, this.killCounterTextMaxWidth, this.fontSize);
+        // Draw enemy counter
+        this.ctx.fillText(this.enemyCounterText + counter, 0, 0);
+        // Draw kill counter
+        this.ctx.fillText(killedPlayers, this.halfWindowWidth, 0);
     }
 
     drawUserLife(life) {
         let tot = Math.round(life * this.lifePercentage);
-        const x = (window.innerWidth - this.lifeWidth) / 2;
-        const y = window.innerHeight - Math.round(this.lifeHeight * 1.5);
-        this.ctx.clearRect(x, y, this.lifeWidth, this.lifeHeight);
+        this.ctx.clearRect(this.userLifeX, this.userLifeY, this.lifeWidth, this.lifeHeight);
         this.ctx.fillStyle = 'red';
-        this.ctx.fillRect(x, y, tot, this.lifeHeight);
+        this.ctx.fillRect(this.userLifeX, this.userLifeY, tot, this.lifeHeight);
         this.ctx.strokeStyle = 'blue';
-        this.ctx.strokeRect(x, y, this.lifeWidth, this.lifeHeight);
+        this.ctx.strokeRect(this.userLifeX, this.userLifeY, this.lifeWidth, this.lifeHeight);
+    }
+    
+    drawFps(fps){
+        console.log("RANK X " + this.rankX + " USER Y " + this.userLifeY);
+        this.ctx.textBaseline = 'top';
+        this.ctx.clearRect(this.rankX,this.userLifeY,
+            this.canvas.width - this.rankX, this.canvas.height - this.fontSize);
+        this.ctx.fillText(fps, this.rankX, this.userLifeY);
     }
 
     //TODO REFACTOR THIS CODE
     drawRanking(players, userBubble) {
         this.ctx.textBaseline = 'top';
-        //this.ctx.fontSize = 45+'px';
-        const measure = this.ctx.measureText("10. 100").width;
-        this.ctx.clearRect(window.innerWidth - measure, 0, measure, this.fontSize * 11);
+        this.ctx.clearRect(this.rankX, 0, this.rankMaxWidth, this.fontSize * 11);
         if (players.length === 0) {
-            this.ctx.fillText("1. " + (userBubble.getName), window.innerWidth - measure, 0);
+            this.ctx.fillText("1. " + (userBubble.getName), this.rankX, 0);
             return;
         }
         let currBubble;
@@ -64,12 +79,12 @@ class GameUi {
             currBubble = players[i];
             if (!find && userBubble.getRadius >= currBubble.getRadius) {
                 find = true;
-                this.ctx.fillText(j + ". " + (userBubble.getName), window.innerWidth - measure, this.fontSize * (j - 1));
+                this.ctx.fillText(j + ". " + (userBubble.getName), this.rankX, this.fontSize * (j - 1));
             } else {
-                this.ctx.fillText(j + ". " + (currBubble.getName), window.innerWidth - measure, this.fontSize * (j - 1));
-                --i;
+                this.ctx.fillText(j + ". " + (currBubble.getName), this.rankX, this.fontSize * (j - 1));
+                i--;
             }
-            ++j;
+            j++;
         }
         if (!find) {
             // Se non sono in top 10, ricerco la mia vera posizione
@@ -77,12 +92,12 @@ class GameUi {
             console.log(" I DOPO " + i);
             for (let h = i; h >= 0; h--) {
                 if (userBubble.getRadius >= players[h].getRadius) {
-                    this.ctx.fillText((h + 1) + ". " + (userBubble.getName), window.innerWidth - measure, this.fontSize * (j - 1));
+                    this.ctx.fillText((h + 1) + ". " + (userBubble.getName), this.rankX, this.fontSize * (j - 1));
                     return;
                 }
             }
             // Se sono la bubble più piccola allora sono all'ultima posizione
-            this.ctx.fillText((players.length + 1) + ". " + (userBubble.getName), window.innerWidth - measure, this.fontSize * (j - 1));
+            this.ctx.fillText((players.length + 1) + ". " + (userBubble.getName), this.rankX, this.fontSize * (j - 1));
         }
     }
 
@@ -105,7 +120,7 @@ class GameUi {
     /**
      * Aggiorna tutti i parametri della UI secondo
      * il nuovo rapporto.
-     * 
+     *
      * @param ratio nuovo scale ratio della finestra di gioco
      */
     updateScaleRatio(ratio) {
@@ -114,5 +129,14 @@ class GameUi {
         this.lifeWidth = (GameUi.getDefaultLifeWidth() * ratio).toFixed(2);
         this.lifePercentage = ((this.lifeWidth / (Bubble.getMaxRadius() - Bubble.getMinRadius()))).toFixed(2);
         this.ctx.font = this.fontSize + 'px Courier New';
+        this.userLifeX = (window.innerWidth - this.lifeWidth) / 2;
+        this.userLifeY = window.innerHeight - Math.round(this.lifeHeight * 1.5);
+        this.killCounterTextMaxWidth = this.ctx.measureText(Game.getMaxEnemyBubble().toString()).width;
+        this.enemyCounterTextMaxWidth = this.ctx.measureText(this.enemyCounterText +
+            Game.getMaxEnemyBubble()).width;
+        this.halfWindowWidth = window.innerWidth / 2;
+        this.rankMaxWidth = this.ctx.measureText(
+            Game.getMaxEnemyBubble()+'. ' + Game.getMaxEnemyBubble()).width;
+        this.rankX = window.innerWidth - this.rankMaxWidth;
     }
 }

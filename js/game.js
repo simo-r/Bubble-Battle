@@ -20,10 +20,16 @@ class Game {
         this.topBottomMargin = 0;
         this.leftRightMargin = 0;
         this.scaleToCover = 0;
-        this.lastCalledTime=0;
+        this.lastCalledTime = 0;
         this.totalEnemyBubble = 100;
+
+        assert(this.totalEnemyBubble < Game.getMaxEnemyBubble(), "Too many enemy bubble");
         this.fps = 0;
         this.delta = 0;
+    }
+
+    static getMaxEnemyBubble() {
+        return 1000;
     }
 
     static createGame(background) {
@@ -58,7 +64,7 @@ class Game {
      * Se il raggio della bolla è minore del minimo raggio
      * allora elimina la bolla dall'array se questa era un'enemy bubble
      * o termina il gioco se questa era l'user bubble
-     * 
+     *
      * @param bubble bolla da controllare
      * @param i indice della bolla nell'array, -1 se è user bubble
      */
@@ -80,34 +86,42 @@ class Game {
 
         }
     }
-    
-    updatePlayerCounterUi(){
+
+    updatePlayerCounterUi() {
         this.mGameUi.saveCtx();
         this.mGameUi.scaleCtx(1 / this.scaleToCover, 1 / this.scaleToCover);
         this.mGameUi.translateCtx(-this.leftRightMargin, -this.topBottomMargin);
-        this.mGameUi.drawPlayerCounter(this.mBubbleArr.length,this.totalEnemyBubble - this.mBubbleArr.length);
-        this.mGameUi.restoreCtx();
-    }
-    
-    updateRankingUi(){
-        this.mGameUi.saveCtx();
-        this.mGameUi.scaleCtx(1 / this.scaleToCover, 1 / this.scaleToCover);
-        this.mGameUi.translateCtx(-this.leftRightMargin, -this.topBottomMargin);
-        this.mGameUi.drawRanking(this.mBubbleArr,this.mBubble);
+        this.mGameUi.drawPlayerCounter(this.mBubbleArr.length, this.totalEnemyBubble - this.mBubbleArr.length);
         this.mGameUi.restoreCtx();
     }
 
-    updateLifeUi(){
+    updateRankingUi() {
+        this.mGameUi.saveCtx();
+        this.mGameUi.scaleCtx(1 / this.scaleToCover, 1 / this.scaleToCover);
+        this.mGameUi.translateCtx(-this.leftRightMargin, -this.topBottomMargin);
+        this.mGameUi.drawRanking(this.mBubbleArr, this.mBubble);
+        this.mGameUi.restoreCtx();
+    }
+
+    updateLifeUi() {
         this.mGameUi.saveCtx();
         this.mGameUi.scaleCtx(1 / this.scaleToCover, 1 / this.scaleToCover);
         this.mGameUi.translateCtx(-this.leftRightMargin, -this.topBottomMargin);
         this.mGameUi.drawUserLife(this.mBubble.radius - Bubble.getMinRadius());
         this.mGameUi.restoreCtx();
     }
+    
+    updateFpsUi(){
+        this.mGameUi.saveCtx();
+        this.mGameUi.scaleCtx(1 / this.scaleToCover, 1 / this.scaleToCover);
+        this.mGameUi.translateCtx(-this.leftRightMargin, -this.topBottomMargin);
+        this.mGameUi.drawFps(this.fps);
+        this.mGameUi.restoreCtx();
+    }
 
     /**
-     * Crea i componenti del gioco 
-     * 
+     * Crea i componenti del gioco
+     *
      * @param background immagine del background
      */
     createComponents(background) {
@@ -115,27 +129,26 @@ class Game {
         let gameHeight = background.height;
         let canvasHalfWidth = this.canvas.width / 2;
         let canvasHalfHeight = this.canvas.height / 2;
-        let radius = 30;
+        let radius = 40;
         let leftOffset = getRandomInteger(canvasHalfWidth + radius - gameWidth, canvasHalfWidth - radius);
         let topOffset = getRandomInteger(canvasHalfHeight + radius - gameHeight, canvasHalfHeight - radius);
         //let leftOffset = canvasHalfWidth + radius - gameWidth;
         //let topOffset = canvasHalfHeight + radius - gameHeight;
         this.mBackground = BackgroundComponent.createBackground(leftOffset, topOffset, background);
         this.mGameUi = new GameUi();
-        this.mBubble = UserBubble.createUserBubble(canvasHalfWidth, canvasHalfHeight, radius, 0, 0, getRandomColor(), this.mBackground,0);
+        this.mBubble = UserBubble.createUserBubble(canvasHalfWidth, canvasHalfHeight, radius, 0, 0, getRandomColor(), this.mBackground, 0);
         this.mShield = Shield.createShield(this.canvas, this.mBackground);
-        for (let i = 0; i < this.totalEnemyBubble; i++){
-            this.mBubbleArr.push(this.spawnBubble(i+1));
+        for (let i = 0; i < this.totalEnemyBubble; i++) {
+            this.mBubbleArr.push(this.spawnBubble(i + 1));
         }
-        this.mBubbleArr.sort(function (b1,b2) {
+        this.mBubbleArr.sort(function (b1, b2) {
             return b1.getRadius - b2.getRadius;
         });
-        this.updateRankingUi();        
+        this.updateRankingUi();
     }
 
     /**
-     * Logica quando viene rilevato un cambiamento 
-     * alla dimensione della finestra di gioco
+     * Logica resize della finesta di gioco
      */
     scaleForWindowResize() {
         let canvasWidth = this.canvas.width;
@@ -143,7 +156,7 @@ class Game {
         let scaleX = window.innerWidth / canvasWidth;
         let scaleY = window.innerHeight / canvasHeight;
         this.scaleToCover = Math.max(scaleX, scaleY);
-        this.stage.style.transformOrigin = '0 0'; 
+        this.stage.style.transformOrigin = '0 0';
         this.stage.style.transform = 'scale(' + this.scaleToCover + ')';
         this.topBottomMargin = Math.round((window.innerHeight - (canvasHeight * this.scaleToCover)) / 2);
         this.leftRightMargin = Math.round((window.innerWidth - (canvasWidth * this.scaleToCover)) / 2);
@@ -151,24 +164,24 @@ class Game {
         // UI
         this.mGameUi.clearAll();
         this.mGameUi.updateScaleRatio(this.scaleToCover);
-        this.updateRankingUi();     
+        this.updateRankingUi();
         this.updatePlayerCounterUi();
         this.updateLifeUi();
     }
 
     /**
-     * Richiama le funzione per muovere i 
+     * Richiama le funzione per muovere i
      * componenti e poi li disegna
      */
     gameLoop() {
-        if(!this.lastCalledTime) {
+        if (!this.lastCalledTime) {
             this.lastCalledTime = Date.now();
             this.fps = 0;
             return;
         }
-        this.delta = (Date.now() - this.lastCalledTime)/1000;
+        this.delta = (Date.now() - this.lastCalledTime) / 1000;
         this.lastCalledTime = Date.now();
-        this.fps = 1/this.delta;
+        this.fps = Math.round(1 / this.delta);
         //COLLIDING LOGIC FOR-EACH CIRCLE
         this.move();
         this.draw();
@@ -185,10 +198,10 @@ class Game {
             this.mBubble.checkGameAreaCollision();
         }
         this.mBackground.move(this.mBubble.speedX, this.mBubble.speedY);
-        
-        if( this.frameCount % this.frameMod === 0){
-            this.mBubbleArr.forEach( v =>
-            v.changeDirection());
+
+        if (this.frameCount % this.frameMod === 0) {
+            this.mBubbleArr.forEach(v =>
+                v.changeDirection());
         }
         for (let i = 0; i < this.mBubbleArr.length; i++) {
             let bubble = this.mBubbleArr[i];
@@ -211,8 +224,8 @@ class Game {
             }
         }
         this.bubbleKillLogic(this.mBubble);
-        if(find){
-            this.mBubbleArr.sort(function (b1,b2) {
+        if (find) {
+            this.mBubbleArr.sort(function (b1, b2) {
                 return b1.radius - b2.radius;
             });
             this.updateRankingUi();
@@ -223,9 +236,12 @@ class Game {
             this.frameCount = 1;
         }
     }
-    
+
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        this.ctx.fillStyle = "#9b9b9b";
+        this.ctx.fillRect(0, 0,this.canvas.width,this.canvas.height);
 
         this.mBackground.draw(this.ctx);
         this.mBubbleArr.forEach(bubble => {
@@ -234,16 +250,17 @@ class Game {
         this.ctx.save();
         this.mBubble.draw(this.ctx);
         this.ctx.restore();
-        
+
         this.ctx.save();
         this.ctx.translate(this.mBackground.x, this.mBackground.y);
         this.mShield.draw(this.ctx);
         this.ctx.restore();
+        this.updateFpsUi();
     }
 
     /**
      * Crea una nuova bolla
-     * 
+     *
      * @param i nome della bubble da creare
      */
     spawnBubble(i) {

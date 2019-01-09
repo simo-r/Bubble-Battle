@@ -24,3 +24,9 @@ function getRandomWASD(){
     }
     return key;
 }
+
+function assert(cond,msg){
+    if(!cond){
+        throw msg || "Assertion failed";
+    }
+}

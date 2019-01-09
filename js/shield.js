@@ -69,22 +69,15 @@ class Shield {
     }
 
     static linePoint(x1, y1, x2, y2, px, py) {
-
-        // get distance from the point to the two ends of the line
+        // distanza centro - estremi del segmento
         let d1 = ShieldPoint.dist(px, py, x1, y1);
         let d2 = ShieldPoint.dist(px, py, x2, y2);
-
-        // get the length of the line
+        // lunghezza del segmento
         let lineLen = ShieldPoint.dist(x1, y1, x2, y2);
-
-        // since floats are so minutely accurate, add
-        // a little buffer zone that will give collision
-        let buffer = 0.1;    // higher # = less accurate
-
-        // if the two distances are equal to the line's
-        // length, the point is on the line!
-        // note we use the buffer here to give a range,
-        // rather than one #
+        // Errore per simulare un minimo di spessore della linea
+        let buffer = 0.1;
+        // Se le due distanze sono uguali alla lunghezza
+        // del segmento allora il punto è sulla linea
         return d1 + d2 >= lineLen - buffer && d1 + d2 <= lineLen + buffer;
 
     }
@@ -102,17 +95,17 @@ class Shield {
         let xPos;
         let yPos;
         let currPoint;
-        let prevPoint;
+        //let prevPoint;
         // TODO [TESTING] THIS NEW IMPLEMENTATION
         ctx.beginPath();
         ctx.moveTo(this.shieldPoints[0].getX - this.shieldPoints[0].getBackgroundX,
-                    this.shieldPoints[0].getY - this.shieldPoints[0].getBackgroundY);
-        for(let i = 1; i < this.shieldPoints.length; i++){
+            this.shieldPoints[0].getY - this.shieldPoints[0].getBackgroundY);
+        for (let i = 1; i < this.shieldPoints.length; i++) {
             currPoint = this.shieldPoints[i];
             xPos = currPoint.getX - currPoint.getBackgroundX;
             yPos = currPoint.getY - currPoint.getBackgroundY;
-            ctx.lineTo(xPos,yPos);
-            ctx.moveTo(xPos,yPos);
+            ctx.lineTo(xPos, yPos);
+            ctx.moveTo(xPos, yPos);
         }
         ctx.closePath();
         ctx.stroke();
@@ -147,7 +140,7 @@ class Shield {
     checkCollision(bubble) {
         let pointOld;
         let pointNew;
-        let find = false;
+        let found = false;
         let collisionDetected = false;
         let i = 0;
         let x1;
@@ -158,47 +151,42 @@ class Shield {
         const cy = Math.abs(bubble.gameArea.y - bubble.y);
         let inside1;
         let inside2;
-        let distX;
-        let distY;
         let segmLength;
-        let dot;
+        let cosAngle;
         let closestX;
         let closestY;
         let distance;
-        while (!find && i < (this.shieldPoints.length - 1)) {
+        while (!found && i < (this.shieldPoints.length - 1)) {
             pointOld = this.shieldPoints[i];
             pointNew = this.shieldPoints[i + 1];
             x1 = pointOld.x - pointOld.backgroundX;
             y1 = pointOld.y - pointOld.backgroundY;
             x2 = pointNew.x - pointNew.backgroundX;
             y2 = pointNew.y - pointNew.backgroundY;
-            // Controllo se uno dei due estremi del segmento è all'interno della circonf
+            // Controllo se uno dei due estremi del segmento è all'interno della circonferenza
             inside1 = Shield.pointBubbleDistance(x1, y1, cx, cy, bubble.radius);
             inside2 = Shield.pointBubbleDistance(x2, y2, cx, cy, bubble.radius);
             if (inside1 !== false) {
                 collisionDetected = this.collisionDetected(bubble, x1 + bubble.gameArea.getX, y1 + bubble.gameArea.getY);
-                find = true;
+                found = true;
             } else if (inside2 !== false) {
                 collisionDetected = this.collisionDetected(bubble, x2 + bubble.gameArea.getX, y2 + bubble.gameArea.getY);
-                find = true;
+                found = true;
             } else {
                 // Cerchiamo il punto sul segmento (x1,y1) - (x2,y2) più vicino alla circonferenza
-                distX = x1 - x2;
-                distY = y1 - y2;
-                segmLength = Math.sqrt(distX * distX + distY * distY);
-                dot = (((cx - x1) * (x2 - x1)) + ((cy - y1) * (y2 - y1))) / Math.pow(segmLength, 2);
-                closestX = x1 + (dot * (x2 - x1));
-                closestY = y1 + (dot * (y2 - y1));
+                segmLength = ShieldPoint.dist(x1, y1, x2, y2);
+                // Coseno dell'angolo tra il centro della circonferenza e il segmento in considerazione
+                cosAngle = (((cx - x1) * (x2 - x1)) + ((cy - y1) * (y2 - y1))) / Math.pow(segmLength, 2);
+                closestX = x1 + (cosAngle * (x2 - x1));
+                closestY = y1 + (cosAngle * (y2 - y1));
                 // Se il punto sta sul segmento
                 if (Shield.linePoint(x1, y1, x2, y2, closestX, closestY)) {
-                    distX = closestX - cx;
-                    distY = closestY - cy;
-                    distance = Math.sqrt(distX * distX + distY * distY);
+                    distance = ShieldPoint.dist(closestX, closestY, cx, cy)/*Math.sqrt(distX * distX + distY * distY)*/;
                     if (distance <= bubble.radius) {
                         collisionDetected = this.collisionDetected(bubble,
                             (closestX + bubble.gameArea.getX),
                             closestY + bubble.gameArea.getY);
-                        find = true;
+                        found = true;
                     }
                 }
             }
@@ -219,15 +207,9 @@ class Shield {
 
     }
 
-    
-
-    
-
-    
-
-    checkGameArea(gameWidth,gameHeight) {
+    checkGameArea(gameWidth, gameHeight) {
         this.shieldPoints.forEach(v => {
-            if(v.getGameX <= 0 || v.getGameX >= gameWidth || v.getGameY <= 0 || v.getGameY >= gameHeight) {
+            if (v.getGameX <= 0 || v.getGameX >= gameWidth || v.getGameY <= 0 || v.getGameY >= gameHeight) {
                 this.clearOldShield();
             }
         });
