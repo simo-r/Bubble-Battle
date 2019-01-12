@@ -21,7 +21,7 @@ class Game {
         this.leftRightMargin = 0;
         this.scaleToCover = 0;
         this.lastCalledTime = 0;
-        this.totalEnemyBubble = 100;
+        this.totalEnemyBubble = 999;
         assert(this.totalEnemyBubble < Game.getMaxEnemyBubble(), "Too many enemies bubbles");
         this.fps = 0;
         this.delta = 0;
@@ -70,9 +70,9 @@ class Game {
      * @return {boolean} true se bubble è stata eliminata, false altrimenti.
      */
     bubbleKillLogic(bubble, i = -1) {
-        let killed = false;
+        //let killed = false;
         if (bubble.getRadius < Bubble.getMinRadius()) {
-            killed = true;
+            //killed = true;
             switch (i) {
                 case -1:
                     this.gameEnd = true;
@@ -90,7 +90,7 @@ class Game {
                     break;
             }
         }
-        return killed;
+        //return killed;
     }
 
     /**
@@ -239,17 +239,18 @@ class Game {
         let find = false;
         let bubble;
         let intersectionLen;
-        const collidedBubbleIndexes = [];
+        //const collidedBubbleIndexes = [];
         for (let i = 0; i < this.mBubbleArr.length; i++) {
             bubble = this.mBubbleArr[i];
             intersectionLen = this.mBubble.collideOnBubble(bubble);
             if (intersectionLen > 0) {
                 find = true;
                 Game.bubbleCollidingLogic(this.mBubble, bubble, intersectionLen);
-                if (!this.bubbleKillLogic(bubble, i)) {
+                this.bubbleKillLogic(bubble, i);
+                /*if (!this.bubbleKillLogic(bubble, i)) {
                     console.log("PUSHED BUBBLE " + i + " BUBBLE NAME " + bubble.getName);
                     collidedBubbleIndexes.push(i);
-                }
+                }*/
             }
         }
         this.bubbleKillLogic(this.mBubble);
@@ -272,7 +273,6 @@ class Game {
 
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
         this.ctx.fillStyle = "#9b9b9b";
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
