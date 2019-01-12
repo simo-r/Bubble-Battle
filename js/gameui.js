@@ -17,6 +17,7 @@ class GameUi {
         this.rankMaxWidth = 0;
     }
 
+
     static getDefaultLifeHeight() {
         return 25;
     }
@@ -27,6 +28,18 @@ class GameUi {
 
     static getDefaultFontSize() {
         return 16;
+    }
+
+    static getWinString() {
+        return "Hai vinto";
+    }
+
+    static getLostString() {
+        return "Hai perso";
+    }
+
+    static getReloadString() {
+        return "Ricarica la pagina per giocare";
     }
 
     clearAll() {
@@ -53,12 +66,12 @@ class GameUi {
         this.ctx.strokeStyle = 'blue';
         this.ctx.strokeRect(this.userLifeX, this.userLifeY, this.lifeWidth, this.lifeHeight);
     }
-    
-    drawFps(fps){
-        console.log("RANK X " + this.rankX + " USER Y " + this.userLifeY);
+
+    drawFps(fps) {
+        //console.log("RANK X " + this.rankX + " USER Y " + this.userLifeY);
         this.ctx.textBaseline = 'top';
-        this.ctx.clearRect(this.rankX,this.userLifeY,
-            this.canvas.width - this.rankX, this.canvas.height - this.fontSize);
+        this.ctx.clearRect(this.rankX, this.userLifeY,
+            window.innerWidth - this.rankX, window.innerHeight - this.fontSize);
         this.ctx.fillText(fps, this.rankX, this.userLifeY);
     }
 
@@ -67,7 +80,7 @@ class GameUi {
         this.ctx.textBaseline = 'top';
         this.ctx.clearRect(this.rankX, 0, this.rankMaxWidth, this.fontSize * 11);
         if (players.length === 0) {
-            this.ctx.fillText("1. " + (userBubble.getName), this.rankX, 0);
+            this.ctx.fillText("1. " + (userBubble.getName) + " - " + Math.round(userBubble.getRadius), this.rankX, 0);
             return;
         }
         let currBubble;
@@ -79,9 +92,9 @@ class GameUi {
             currBubble = players[i];
             if (!find && userBubble.getRadius >= currBubble.getRadius) {
                 find = true;
-                this.ctx.fillText(j + ". " + (userBubble.getName), this.rankX, this.fontSize * (j - 1));
+                this.ctx.fillText(j + ". " + (userBubble.getName) + " - " + Math.round(userBubble.getRadius), this.rankX, this.fontSize * (j - 1));
             } else {
-                this.ctx.fillText(j + ". " + (currBubble.getName), this.rankX, this.fontSize * (j - 1));
+                this.ctx.fillText(j + ". " + (currBubble.getName) + " - " + Math.round(currBubble.getRadius), this.rankX, this.fontSize * (j - 1));
                 i--;
             }
             j++;
@@ -92,14 +105,32 @@ class GameUi {
             console.log(" I DOPO " + i);
             for (let h = i; h >= 0; h--) {
                 if (userBubble.getRadius >= players[h].getRadius) {
-                    this.ctx.fillText((h + 1) + ". " + (userBubble.getName), this.rankX, this.fontSize * (j - 1));
+                    this.ctx.fillText((h + 1) + ". " + (userBubble.getName) + " - " + Math.round(userBubble.getRadius), this.rankX, this.fontSize * (j - 1));
                     return;
                 }
             }
             // Se sono la bubble più piccola allora sono all'ultima posizione
-            this.ctx.fillText((players.length + 1) + ". " + (userBubble.getName), this.rankX, this.fontSize * (j - 1));
+            this.ctx.fillText((players.length + 1) + ". " + (userBubble.getName) + " - " + Math.round(userBubble.getRadius), this.rankX, this.fontSize * (j - 1));
         }
     }
+
+    drawGameEnd(result) {
+        //centralo
+        let resultText = result ? GameUi.getWinString() : GameUi.getLostString();
+        this.ctx.textBaseline = 'middle';
+        const fontSize = this.fontSize * 3;
+        const halfHeight = (window.innerHeight - fontSize) / 2;
+        this.ctx.font = 'bold ' + (fontSize) + 'px Courier New';
+        this.ctx.fillText(resultText,
+            this.halfWindowWidth - this.ctx.measureText(resultText).width / 2,
+            halfHeight);
+        this.ctx.font = 'bold ' + (this.fontSize) + 'px Courier New';
+        this.ctx.fillText(GameUi.getReloadString(),
+            this.halfWindowWidth - this.ctx.measureText(GameUi.getReloadString()).width / 2,
+            halfHeight + fontSize);
+
+    }
+
 
     saveCtx() {
         this.ctx.save();
@@ -136,7 +167,9 @@ class GameUi {
             Game.getMaxEnemyBubble()).width;
         this.halfWindowWidth = window.innerWidth / 2;
         this.rankMaxWidth = this.ctx.measureText(
-            Game.getMaxEnemyBubble()+'. ' + Game.getMaxEnemyBubble()).width;
+            Game.getMaxEnemyBubble() + '. ' + Game.getMaxEnemyBubble() + " - " + Bubble.getMaxRadius()).width;
         this.rankX = window.innerWidth - this.rankMaxWidth;
     }
+
+
 }

@@ -28,7 +28,7 @@ class Shield {
                 shield.isShieldOn ||
                 (shield.shieldLength >= shield.maxShieldLength)) return;
             let shieldPoint = ShieldPoint.newPoint(e, canvas, background);
-            shieldPoint.setDrag = true;
+            //shieldPoint.setDrag = true;
             shield.increaseShieldLength(shieldPoint);
             if (shield.shieldLength < shield.maxShieldLength) {
                 shield.shieldPoints.push(shieldPoint);

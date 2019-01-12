@@ -21,9 +21,8 @@ class Game {
         this.leftRightMargin = 0;
         this.scaleToCover = 0;
         this.lastCalledTime = 0;
-        this.totalEnemyBubble = 5;
-
-        assert(this.totalEnemyBubble < Game.getMaxEnemyBubble(), "Too many enemy bubble");
+        this.totalEnemyBubble = 100;
+        assert(this.totalEnemyBubble < Game.getMaxEnemyBubble(), "Too many enemies bubbles");
         this.fps = 0;
         this.delta = 0;
     }
@@ -67,33 +66,47 @@ class Game {
      *
      * @param bubble bolla da controllare
      * @param i indice della bolla nell'array, -1 se è user bubble
+     *
+     * @return {boolean} true se bubble è stata eliminata, false altrimenti.
      */
     bubbleKillLogic(bubble, i = -1) {
+        let killed = false;
         if (bubble.getRadius < Bubble.getMinRadius()) {
+            killed = true;
             switch (i) {
                 case -1:
-                    //TODO GAME OVER LOGIC
                     this.gameEnd = true;
                     console.log("GAME OVER " + reqId);
-                    alert("HAI PERSO");
+                    this.gameEndLogic(false);
                     break;
                 default:
                     console.log("KILL");
                     this.mBubbleArr.splice(i, 1);
-                    this.updatePlayerCounterUi();
-                    if(this.mBubbleArr.length === 0){
+                    this.updateEnemyCounterUi();
+                    if (this.mBubbleArr.length === 0) {
                         this.gameEnd = true;
-                        // TODO WIN LOGIC
-                        alert("HAI VINTO");
+                        this.gameEndLogic(true);
                     }
                     break;
             }
-
-
         }
+        return killed;
     }
 
-    updatePlayerCounterUi() {
+    /**
+     *
+     * @param result {boolean} true vittoria, false altrimenti
+     */
+    gameEndLogic(result) {
+        this.gameWin = result;
+        this.mGameUi.saveCtx();
+        this.mGameUi.scaleCtx(1 / this.scaleToCover, 1 / this.scaleToCover);
+        this.mGameUi.translateCtx(-this.leftRightMargin, -this.topBottomMargin);
+        this.mGameUi.drawGameEnd(result);
+        this.mGameUi.restoreCtx();
+    }
+
+    updateEnemyCounterUi() {
         this.mGameUi.saveCtx();
         this.mGameUi.scaleCtx(1 / this.scaleToCover, 1 / this.scaleToCover);
         this.mGameUi.translateCtx(-this.leftRightMargin, -this.topBottomMargin);
@@ -116,8 +129,8 @@ class Game {
         this.mGameUi.drawUserLife(this.mBubble.radius - Bubble.getMinRadius());
         this.mGameUi.restoreCtx();
     }
-    
-    updateFpsUi(){
+
+    updateFpsUi() {
         this.mGameUi.saveCtx();
         this.mGameUi.scaleCtx(1 / this.scaleToCover, 1 / this.scaleToCover);
         this.mGameUi.translateCtx(-this.leftRightMargin, -this.topBottomMargin);
@@ -150,6 +163,9 @@ class Game {
         this.mBubbleArr.sort(function (b1, b2) {
             return b1.getRadius - b2.getRadius;
         });
+        this.mBubbleArr.forEach(bubble => {
+            console.log("BUBBLE NAME" + bubble.getName + " RADIUS " + bubble.getRadius);
+        });
         this.updateRankingUi();
     }
 
@@ -171,8 +187,11 @@ class Game {
         this.mGameUi.clearAll();
         this.mGameUi.updateScaleRatio(this.scaleToCover);
         this.updateRankingUi();
-        this.updatePlayerCounterUi();
+        this.updateEnemyCounterUi();
         this.updateLifeUi();
+        if (this.gameEnd) {
+            this.gameEndLogic(this.gameWin);
+        }
     }
 
     /**
@@ -220,17 +239,25 @@ class Game {
         let find = false;
         let bubble;
         let intersectionLen;
+        const collidedBubbleIndexes = [];
         for (let i = 0; i < this.mBubbleArr.length; i++) {
             bubble = this.mBubbleArr[i];
             intersectionLen = this.mBubble.collideOnBubble(bubble);
             if (intersectionLen > 0) {
                 find = true;
                 Game.bubbleCollidingLogic(this.mBubble, bubble, intersectionLen);
-                this.bubbleKillLogic(bubble, i);
+                if (!this.bubbleKillLogic(bubble, i)) {
+                    console.log("PUSHED BUBBLE " + i + " BUBBLE NAME " + bubble.getName);
+                    collidedBubbleIndexes.push(i);
+                }
             }
         }
         this.bubbleKillLogic(this.mBubble);
         if (find) {
+            console.log("HERE");
+            /*if (collidedBubbleIndexes.length > 0) {
+                sortBubbles(this.mBubbleArr, collidedBubbleIndexes);
+            }*/
             this.mBubbleArr.sort(function (b1, b2) {
                 return b1.radius - b2.radius;
             });
@@ -245,9 +272,9 @@ class Game {
 
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        
+
         this.ctx.fillStyle = "#9b9b9b";
-        this.ctx.fillRect(0, 0,this.canvas.width,this.canvas.height);
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.mBackground.draw(this.ctx);
         this.mBubbleArr.forEach(bubble => {
@@ -280,4 +307,6 @@ class Game {
         const speedY = 0;
         return new EnemyBubble(x, y, radius, speedX, speedY, getRandomColor(), this.mBackground, i);
     }
+
+
 }

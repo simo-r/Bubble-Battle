@@ -277,7 +277,7 @@ class Bubble {
      */
     colliding(radiusRatio = 0, hit = 2 * this.radius) {
         let ratio = (hit / (2 * this.radius)).toFixed(2);
-        this.radius -= radiusRatio /*Da moltiplicare*/;
+        this.radius -= radiusRatio;
         if (this.radius > Bubble.getMaxRadius()) {
             this.radius = Bubble.getMaxRadius();
         }
