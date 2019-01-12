@@ -2,6 +2,7 @@
 // è possibile manipolare il DOM in maniera sicura
 let mGame;
 let reqId;
+
 $('document').ready(function () {
     let background = new Image();
     background.onload = function () {
@@ -19,7 +20,7 @@ $('document').ready(function () {
 function renderLoop() {
     mGame.gameLoop();
     reqId = window.requestAnimationFrame(renderLoop);
-    if (mGame.isGameOver) {
+    if (mGame.isGameEnd) {
         window.cancelAnimationFrame(reqId);
     }
 }

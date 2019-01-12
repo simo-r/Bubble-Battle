@@ -16,12 +16,12 @@ class Game {
         this.mBubbleArr = [];
         this.frameCount = 1;
         this.frameMod = 500;
-        this.gameOver = false;
+        this.gameEnd = false;
         this.topBottomMargin = 0;
         this.leftRightMargin = 0;
         this.scaleToCover = 0;
         this.lastCalledTime = 0;
-        this.totalEnemyBubble = 100;
+        this.totalEnemyBubble = 5;
 
         assert(this.totalEnemyBubble < Game.getMaxEnemyBubble(), "Too many enemy bubble");
         this.fps = 0;
@@ -56,8 +56,8 @@ class Game {
         }
     }
 
-    get isGameOver() {
-        return this.gameOver;
+    get isGameEnd() {
+        return this.gameEnd;
     }
 
     /**
@@ -73,13 +73,19 @@ class Game {
             switch (i) {
                 case -1:
                     //TODO GAME OVER LOGIC
-                    this.gameOver = true;
+                    this.gameEnd = true;
                     console.log("GAME OVER " + reqId);
+                    alert("HAI PERSO");
                     break;
                 default:
                     console.log("KILL");
                     this.mBubbleArr.splice(i, 1);
                     this.updatePlayerCounterUi();
+                    if(this.mBubbleArr.length === 0){
+                        this.gameEnd = true;
+                        // TODO WIN LOGIC
+                        alert("HAI VINTO");
+                    }
                     break;
             }
 
