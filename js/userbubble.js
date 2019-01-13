@@ -24,13 +24,6 @@ class UserBubble extends Bubble {
         window.addEventListener('keyup', keyUpFun);
     }
     
-    // TODO [TESTING] Vedi se si può rimuovere quell'if
-    updateSpeed() {
-        //if (!(Object.keys(this.keys).length === 0 && this.keys.constructor === Object)) {
-            super.updateSpeed();
-        //}
-    }
-
     /**
      * Override
      */

@@ -7,9 +7,9 @@ $('document').ready(function () {
     let background = new Image();
     background.onload = function () {
         mGame = Game.createGame(background);
-        window.onresize = () => {
-            mGame.scaleForWindowResize()
-        };
+        window.addEventListener('resize', function(event){
+            mGame.scaleForWindowResize();
+        });
         reqId = window.requestAnimationFrame(renderLoop);
 
         console.log("Init canvas")

@@ -95,8 +95,6 @@ class Shield {
         let xPos;
         let yPos;
         let currPoint;
-        //let prevPoint;
-        // TODO [TESTING] THIS NEW IMPLEMENTATION
         ctx.beginPath();
         ctx.moveTo(this.shieldPoints[0].getX - this.shieldPoints[0].getBackgroundX,
             this.shieldPoints[0].getY - this.shieldPoints[0].getBackgroundY);
@@ -109,25 +107,6 @@ class Shield {
         }
         ctx.closePath();
         ctx.stroke();
-        /*for (let i = 0; i < this.shieldPoints.length; i++) {
-            ctx.beginPath();
-            currPoint = this.shieldPoints[i];
-            if (this.shieldPoints[i].isDrag && i) {
-                prevPoint = this.shieldPoints[i - 1];
-                xPos = prevPoint.getX - prevPoint.getBackgroundX;
-                yPos = prevPoint.getY - prevPoint.getBackgroundY;
-                ctx.moveTo(xPos, yPos);
-            } else {
-                xPos = (currPoint.getX /!*- 1*!/) - currPoint.getBackgroundX;
-                yPos = currPoint.getY - currPoint.getBackgroundY;
-                ctx.moveTo(xPos, yPos);
-            }
-            xPos = currPoint.getX - currPoint.getBackgroundX;
-            yPos = currPoint.getY - currPoint.getBackgroundY;
-            ctx.lineTo(xPos, yPos);
-            ctx.closePath();
-            ctx.stroke();
-        }*/
     }
 
     clearOldShield() {

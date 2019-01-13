@@ -7,6 +7,7 @@ class EnemyBubble extends Bubble {
     }
 
     move(){
+        
         this.x += this.speedX + (this.gameArea.x - this.oldGameAreaX);
 
         this.y += this.speedY + (this.gameArea.y - this.oldGameAreaY);

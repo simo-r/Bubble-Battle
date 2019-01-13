@@ -13,64 +13,58 @@ function getRandomColor() {
     return color;
 }
 
-function getRandomWASD(){
+function getRandomWASD() {
     // Rappresenta WASD, se key[i] === 1 allora il tasto è premuto
     let key = {};
-    let keyName = ['KeyW','KeyA','KeyS','KeyD'];
+    let keyName = ['KeyW', 'KeyA', 'KeyS', 'KeyD'];
     let keyValue;
-    for(let i = 0; i < 4; i++){
-        keyValue = getRandomInteger(0,1);
+    for (let i = 0; i < 4; i++) {
+        keyValue = getRandomInteger(0, 1);
         key[keyName[i]] = keyValue === 1;
     }
     return key;
 }
 
-function assert(cond,msg){
-    if(!cond){
+function assert(cond, msg) {
+    if (!cond) {
         throw msg || "Assertion failed";
     }
 }
 
-/*
-function sortBubbles(bubbleArr,collidedBubbleIndexes) {
-    console.log(" BUBBLE ARR " + bubbleArr.toString());
-    let splicedElements = [];
-    collidedBubbleIndexes.forEach( i => {
-        console.log("SPLICED " + i);
-        splicedElements.push(bubbleArr.splice(i,1)[0]);
+/**
+ * Rimuove l'elemento in posizione collidedbubbleindex
+ * e ricerca la nuova posizione di questo elemento nell'array
+ * usando una ricerca binaria.
+ * Splice effettua lo shift degli elementi all'interno 
+ * dell'array
+ * 
+ * @param bubbleArr array da ordinare
+ * @param collidedBubbleIndex indice dell'elemento da ri-ordinare
+ */
+function sortBubbles(bubbleArr, collidedBubbleIndex) {
+    let i = 0;
+    bubbleArr.forEach(v => {
+        console.log("BUBBLE ARR POS " + i + " NAME " + v.getName + " VAL " + v.getRadius);
     });
-    console.log(" BUBBLE ARR " + bubbleArr.toString());
-    splicedElements.forEach( currBubble =>{
-        console.log("CURR BUBBLE " + currBubble.toString() + " index " + currBubble.getName);
-        let left = 0;
-        let right = bubbleArr.length - 1;
-        /!*if((i-1) >= 0 && currBubble.getRadius < bubbleArr[i-1].getRadius ){
-            right = i;
-        }
-        if((i+1) < bubbleArr.length && currBubble.getRadius > bubbleArr[i+1].getRadius){
-            left = i;
-        }*!/
-        if(left === 0 && right === 0){
-            console.log("LEFT === RIGHT === 0");
-            if(bubbleArr[0].getRadius < currBubble.getRadius){
-                bubbleArr.push(currBubble);
-            }else{
-                bubbleArr.unshift(currBubble);
-            }
-            return;
-        }
-        let mid =  Math.floor((left + right)/2);
-        while(left < right){
-            if(bubbleArr[mid].getRadius < currBubble.getRadius){
-                right = mid - 1;
-            }else{
-                left = mid +1;
-                
-            }
-            mid = Math.floor((left+right) / 2);
-        }
-        console.log("MID " + mid);
-        bubbleArr.splice(mid,0,currBubble);
+    const splicedElement = (bubbleArr.splice(collidedBubbleIndex, 1)[0]);
+    let pos = binarySearch(bubbleArr, splicedElement, 0, bubbleArr.length - 1);
+    console.log("CURR BUBBLE NAME " + splicedElement.getName + " VAL " + splicedElement.getRadius + "NEW POSITION " + pos);
+    bubbleArr.splice(pos, 0, splicedElement);
+    i = 0;
+    bubbleArr.forEach(v => {
+        console.log("BUBBLE ARR POS " + i + " NAME " + v.getName + " VAL " + v.getRadius);
     });
-    console.log(" BUBBLE ARR " + bubbleArr.toString());
-}*/
+}
+
+
+function binarySearch(bubbleArr, splicedElement, left, right) {
+    if (right <= left)
+        return (splicedElement.getRadius > bubbleArr[left].getRadius) ? (left + 1) : left;
+    let mid = Math.floor((left + right) / 2);
+    if (splicedElement.getRadius === bubbleArr[mid].getRadius)
+        return mid + 1;
+
+    if (splicedElement.getRadius > bubbleArr[mid].getRadius)
+        return binarySearch(bubbleArr, splicedElement, mid + 1, right);
+    return binarySearch(bubbleArr, splicedElement, left, mid - 1);
+} 

@@ -74,8 +74,7 @@ class GameUi {
             window.innerWidth - this.rankX, window.innerHeight - this.fontSize);
         this.ctx.fillText(fps, this.rankX, this.userLifeY);
     }
-
-    //TODO REFACTOR THIS CODE
+    
     drawRanking(players, userBubble) {
         this.ctx.textBaseline = 'top';
         this.ctx.clearRect(this.rankX, 0, this.rankMaxWidth, this.fontSize * 11);

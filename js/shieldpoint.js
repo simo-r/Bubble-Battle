@@ -2,7 +2,6 @@ class ShieldPoint {
     constructor(x, y, backgroundX, backgroundY) {
         this.x = x;
         this.y = y;
-        //this.clickDrag = false;
         this.backgroundX = backgroundX;
         this.backgroundY = backgroundY;
     }
@@ -25,15 +24,7 @@ class ShieldPoint {
         let y = y1 - y2;
         return Math.sqrt(x * x + y * y);
     }
-
-    /*set setDrag(v) {
-        this.clickDrag = v;
-    }
-
-    get isDrag() {
-        return this.clickDrag;
-    }*/
-
+    
     get getX() {
         return this.x;
     }

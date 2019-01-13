@@ -44,7 +44,7 @@ class BackgroundComponent {
      *
      * @param bubbleX centro della bolla
      * @param bubbleRadius raggio della bolla
-     * @returns -1 se è fuori il bordo sinistro, 1 se è fuori il bordo destro
+     * @returns {number,boolean} -1 se è fuori il bordo sinistro, 1 se è fuori il bordo destro
      *          altrimenti false
      */
     isOutOfXBounds(bubbleX, bubbleRadius) {
@@ -60,7 +60,7 @@ class BackgroundComponent {
      *
      * @param bubbleY centro della bolla
      * @param bubbleRadius raggio della bolla
-     * @returns -1 se è fuori il bordo superiore, 1 se è fuori il bordo inferiore
+     * @returns {number,boolean} -1 se è fuori il bordo superiore, 1 se è fuori il bordo inferiore
      *          altrimenti false
      */
     isOutOfYBounds(bubbleY,bubbleRadius){
