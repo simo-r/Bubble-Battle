@@ -11,12 +11,12 @@ class UserBubble extends Bubble {
     
     static addKeyListeners(bubble) {
         let keyDownFun = function (e) {
-            if ((e.code === 'KeyW' || e.code === 'KeyA' || e.code === 'KeyS' || e.code === 'KeyD')) {
+            if ((e.code === keyW || e.code === keyA || e.code === keyS || e.code === keyD)) {
                 bubble.keys[e.code] = true;
             }
         };
         let keyUpFun = function (e) {
-            if (e.code === 'KeyW' || e.code === 'KeyA' || e.code === 'KeyS' || e.code === 'KeyD') {
+            if (e.code === keyW || e.code === keyA || e.code === keyS || e.code === keyD) {
                 bubble.keys[e.code] = false;
             }
         };

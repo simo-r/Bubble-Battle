@@ -9,11 +9,9 @@ html, body {
     overflow: hidden;
 }
 
-
 #content {
     position: relative;
 }
-
 
 #bbCanvas,
 #uiCanvas {
@@ -23,11 +21,9 @@ html, body {
 }
 
 #bbCanvas {
-    
     z-index: 1;
 }
 
 #uiCanvas {
-   
     z-index: 2;
 }

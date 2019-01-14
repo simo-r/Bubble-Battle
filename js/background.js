@@ -1,6 +1,3 @@
-// Non la renderizzo off-screen perché l'Image effettua il load 
-// dell'intera bitmap in memoria rispettando le size specificate nell'svg.
-
 class BackgroundComponent {
     constructor(x, y, bgImage) {
         this.x = x;

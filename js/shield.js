@@ -1,12 +1,23 @@
+const maxShieldLength = 600;
+const shieldDuration = 10000; //milli-seconds
+
 class Shield {
     constructor() {
         this.shieldPoints = [];
         this.paint = false;
         this.isShieldOn = false;
         this.shieldLength = 0;
-        this.maxShieldLength = 600;
+        //this.maxShieldLength = 600;
         this.shieldTimer = null;
-        this.shieldDuration = 15000; //milli-seconds
+        //shieldDuration = 10000; //milli-seconds
+    }
+
+    static get getMaxShieldLength() {
+        return maxShieldLength;
+    }
+
+    static get getShieldDuration() {
+        return shieldDuration;
     }
 
     static createShield(canvas, background) {
@@ -26,11 +37,10 @@ class Shield {
         let mouseMoveFun = function (e) {
             if (!shield.paint ||
                 shield.isShieldOn ||
-                (shield.shieldLength >= shield.maxShieldLength)) return;
+                (shield.shieldLength >= Shield.getMaxShieldLength)) return;
             let shieldPoint = ShieldPoint.newPoint(e, canvas, background);
-            //shieldPoint.setDrag = true;
             shield.increaseShieldLength(shieldPoint);
-            if (shield.shieldLength < shield.maxShieldLength) {
+            if (shield.shieldLength < Shield.getMaxShieldLength) {
                 shield.shieldPoints.push(shieldPoint);
             }
         };
@@ -46,7 +56,7 @@ class Shield {
                     shield.clearOldShield();
                     shield.isShieldOn = false;
                     window.clearTimeout(shield.shieldTimer);
-                }, shield.shieldDuration);
+                }, Shield.getShieldDuration);
             }
         };
         window.onmousedown = mouseDownFun;
@@ -54,14 +64,11 @@ class Shield {
         window.onmouseup = mouseUpFun;
         window.onmouseleave = mouseUpFun;
     }
-
+    
     static pointBubbleDistance(px, py, cx, cy, r) {
         //Distanza punto - centro bubble
-        let distX = px - cx;
-        let distY = py - cy;
-        let distance = Math.sqrt((distX * distX) + (distY * distY));
-
-        //Se la distanza è minore del raggio allora è dentro
+        let distance = ShieldPoint.dist(px, py, cx, cy);
+        //Se la distanza è <= del raggio allora è dentro
         if (distance <= r) {
             return distance - r;
         }
@@ -84,7 +91,7 @@ class Shield {
 
     increaseShieldLength(newPoint) {
         let previousPoint = this.shieldPoints[this.shieldPoints.length - 1];
-        this.shieldLength += previousPoint.distanceTo(newPoint);
+        this.shieldLength += ShieldPoint.distanceTo(previousPoint,newPoint);
     }
 
     draw(ctx) {
@@ -114,8 +121,7 @@ class Shield {
         this.paint = false;
         this.shieldLength = 0;
     }
-
-    // TODO CAPIRE QUESTA IMPLEMENTAZIONE
+    
     checkCollision(bubble) {
         let pointOld;
         let pointNew;
@@ -173,8 +179,14 @@ class Shield {
         }
         return collisionDetected;
     }
-
-    // True se lo shield è on e collide, false se collide e lo shield è off
+    
+    /**
+     * 
+     * @param bubble bubble che collide
+     * @param x1 ascissa del punto di collisione
+     * @param y1 ordinata del punto di collisione
+     * @returns {boolean} true se lo shield è on e collide, false se collide e lo shield è off
+     */
     collisionDetected(bubble, x1, y1) {
         if (this.isShieldOn) {
             bubble.collideOnShield(x1, y1);
@@ -183,9 +195,15 @@ class Shield {
             this.clearOldShield();
             return false;
         }
-
     }
 
+    /**
+     * Controlla che lo shield sia contenuto 
+     * nella game-area. Se non lo è lo cancella.
+     * 
+     * @param gameWidth larghezza della game-area
+     * @param gameHeight altezza della game-area
+     */
     checkGameArea(gameWidth, gameHeight) {
         this.shieldPoints.forEach(v => {
             if (v.getGameX <= 0 || v.getGameX >= gameWidth || v.getGameY <= 0 || v.getGameY >= gameHeight) {

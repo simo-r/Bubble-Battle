@@ -1,3 +1,8 @@
+const keyW = 'KeyW';
+const keyA = 'KeyA';
+const keyS = 'KeyS';
+const keyD = 'KeyD';
+
 function getRandomInteger(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
@@ -16,7 +21,7 @@ function getRandomColor() {
 function getRandomWASD() {
     // Rappresenta WASD, se key[i] === 1 allora il tasto è premuto
     let key = {};
-    let keyName = ['KeyW', 'KeyA', 'KeyS', 'KeyD'];
+    let keyName = [keyW,keyA, keyS, keyD];
     let keyValue;
     for (let i = 0; i < 4; i++) {
         keyValue = getRandomInteger(0, 1);
@@ -63,7 +68,6 @@ function binarySearch(bubbleArr, splicedElement, left, right) {
     let mid = Math.floor((left + right) / 2);
     if (splicedElement.getRadius === bubbleArr[mid].getRadius)
         return mid + 1;
-
     if (splicedElement.getRadius > bubbleArr[mid].getRadius)
         return binarySearch(bubbleArr, splicedElement, mid + 1, right);
     return binarySearch(bubbleArr, splicedElement, left, mid - 1);

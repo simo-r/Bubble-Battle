@@ -1,11 +1,18 @@
+const defaultLifeHeight = 25;
+const defaultLifeWidth = 200;
+const defaultFontSize = 16;
+const winString = "Hai vinto";
+const lostString = "Hai perso";
+const reloadString = "Ricarica la pagina per giocare";
+
 class GameUi {
     constructor() {
         this.canvas = document.getElementById("uiCanvas");
         this.ctx = this.canvas.getContext("2d");
         this.ctx.shadowBlur = 0;
-        this.fontSize = GameUi.getDefaultFontSize();
-        this.lifeHeight = GameUi.getDefaultLifeHeight();
-        this.lifeWidth = GameUi.getDefaultLifeWidth();
+        this.fontSize = GameUi.getDefaultFontSize;
+        this.lifeHeight = GameUi.getDefaultLifeHeight;
+        this.lifeWidth = GameUi.getDefaultLifeWidth;
         this.lifePercentage = 0;
         this.userLifeX = 0;
         this.userLifeY = 0;
@@ -18,28 +25,28 @@ class GameUi {
     }
 
 
-    static getDefaultLifeHeight() {
-        return 25;
+    static get getDefaultLifeHeight() {
+        return defaultLifeHeight;
     }
 
-    static getDefaultLifeWidth() {
-        return 200;
+    static get getDefaultLifeWidth() {
+        return defaultLifeWidth;
     }
 
-    static getDefaultFontSize() {
-        return 16;
+    static get getDefaultFontSize() {
+        return defaultFontSize;
     }
 
-    static getWinString() {
-        return "Hai vinto";
+    static get getWinString() {
+        return winString;
     }
 
-    static getLostString() {
-        return "Hai perso";
+    static get getLostString() {
+        return lostString;
     }
 
-    static getReloadString() {
-        return "Ricarica la pagina per giocare";
+    static get getReloadString() {
+        return reloadString;
     }
 
     clearAll() {
@@ -74,7 +81,7 @@ class GameUi {
             window.innerWidth - this.rankX, window.innerHeight - this.fontSize);
         this.ctx.fillText(fps, this.rankX, this.userLifeY);
     }
-    
+
     drawRanking(players, userBubble) {
         this.ctx.textBaseline = 'top';
         this.ctx.clearRect(this.rankX, 0, this.rankMaxWidth, this.fontSize * 11);
@@ -100,8 +107,6 @@ class GameUi {
         }
         if (!find) {
             // Se non sono in top 10, ricerco la mia vera posizione
-            console.log("NOT FIND ");
-            console.log(" I DOPO " + i);
             for (let h = i; h >= 0; h--) {
                 if (userBubble.getRadius >= players[h].getRadius) {
                     this.ctx.fillText((h + 1) + ". " + (userBubble.getName) + " - " + Math.round(userBubble.getRadius), this.rankX, this.fontSize * (j - 1));
@@ -114,8 +119,7 @@ class GameUi {
     }
 
     drawGameEnd(result) {
-        //centralo
-        let resultText = result ? GameUi.getWinString() : GameUi.getLostString();
+        let resultText = result ? GameUi.getWinString : GameUi.getLostString;
         this.ctx.textBaseline = 'middle';
         const fontSize = this.fontSize * 3;
         const halfHeight = (window.innerHeight - fontSize) / 2;
@@ -124,8 +128,8 @@ class GameUi {
             this.halfWindowWidth - this.ctx.measureText(resultText).width / 2,
             halfHeight);
         this.ctx.font = 'bold ' + (this.fontSize) + 'px Courier New';
-        this.ctx.fillText(GameUi.getReloadString(),
-            this.halfWindowWidth - this.ctx.measureText(GameUi.getReloadString()).width / 2,
+        this.ctx.fillText(GameUi.getReloadString,
+            this.halfWindowWidth - this.ctx.measureText(GameUi.getReloadString).width / 2,
             halfHeight + fontSize);
 
     }
@@ -154,21 +158,19 @@ class GameUi {
      * @param ratio nuovo scale ratio della finestra di gioco
      */
     updateScaleRatio(ratio) {
-        this.fontSize = (GameUi.getDefaultFontSize() * ratio).toFixed(2);
-        this.lifeHeight = (GameUi.getDefaultLifeHeight() * ratio).toFixed(2);
-        this.lifeWidth = (GameUi.getDefaultLifeWidth() * ratio).toFixed(2);
-        this.lifePercentage = ((this.lifeWidth / (Bubble.getMaxRadius() - Bubble.getMinRadius()))).toFixed(2);
+        this.fontSize = (GameUi.getDefaultFontSize * ratio).toFixed(2);
+        this.lifeHeight = (GameUi.getDefaultLifeHeight * ratio).toFixed(2);
+        this.lifeWidth = (GameUi.getDefaultLifeWidth * ratio).toFixed(2);
+        this.lifePercentage = ((this.lifeWidth / (Bubble.getMaxRadius - Bubble.getMinRadius))).toFixed(2);
         this.ctx.font = this.fontSize + 'px Courier New';
         this.userLifeX = (window.innerWidth - this.lifeWidth) / 2;
         this.userLifeY = window.innerHeight - Math.round(this.lifeHeight * 1.5);
-        this.killCounterTextMaxWidth = this.ctx.measureText(Game.getMaxEnemyBubble().toString()).width;
+        this.killCounterTextMaxWidth = this.ctx.measureText(Game.getMaxEnemyBubble.toString()).width;
         this.enemyCounterTextMaxWidth = this.ctx.measureText(this.enemyCounterText +
-            Game.getMaxEnemyBubble()).width;
+            Game.getMaxEnemyBubble).width;
         this.halfWindowWidth = window.innerWidth / 2;
         this.rankMaxWidth = this.ctx.measureText(
-            Game.getMaxEnemyBubble() + '. ' + Game.getMaxEnemyBubble() + " - " + Bubble.getMaxRadius()).width;
+            Game.getMaxEnemyBubble + '. ' + Game.getMaxEnemyBubble + " - " + Bubble.getMaxRadius).width;
         this.rankX = window.innerWidth - this.rankMaxWidth;
     }
-
-
 }

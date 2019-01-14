@@ -11,7 +11,6 @@ $('document').ready(function () {
             mGame.scaleForWindowResize();
         });
         reqId = window.requestAnimationFrame(renderLoop);
-
         console.log("Init canvas")
     };
     background.src = "background.svg";

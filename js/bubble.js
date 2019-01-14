@@ -1,3 +1,5 @@
+const minRadius = 20;
+const maxRadius = 300;
 class Bubble {
     constructor(x, y, radius, speedX, speedY, color, gameArea, name) {
         this.x = x;
@@ -5,7 +7,7 @@ class Bubble {
         this.radius = radius;
         this.color = color;
         this.gameArea = gameArea;
-        this.maxSpeed = this.getCurrentMaxSpeed;
+        this.maxSpeed = Bubble.getCurrentMaxSpeed(this.radius);
         this.acceleration = 0.3;
         this.speedX = speedX;
         this.speedY = speedY;
@@ -14,16 +16,16 @@ class Bubble {
         this.name = name;
     }
 
-    static getMinRadius() {
-        return 20;
+    static get getMinRadius() {
+        return minRadius;
     }
 
-    static getMaxRadius() {
-        return 300;
+    static get getMaxRadius() {
+        return maxRadius;
     }
 
-    get getCurrentMaxSpeed() {
-        return Math.ceil(100 / this.radius);
+    static getCurrentMaxSpeed(radius) {
+        return Math.ceil(100 / radius);
     }
 
     get getRadius() {
@@ -37,8 +39,8 @@ class Bubble {
 
     draw(ctx) {
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
         ctx.fillStyle = this.color;
+        ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
         ctx.fill();
 
     }
@@ -68,12 +70,12 @@ class Bubble {
      * della combinazione di tasti premuta.
      */
     updateSpeedX() {
-        if ((this.keys['KeyD'] && this.keys['KeyA']) ||
-            (this.speedX !== 0 && !(this.keys['KeyD'] || this.keys['KeyA']))) {
+        if ((this.keys[keyD] && this.keys[keyA]) ||
+            (this.speedX !== 0 && !(this.keys[keyD] || this.keys[keyA]))) {
             this.slowDownX();
-        } else if (this.keys['KeyA']) {
+        } else if (this.keys[keyA]) {
             this.moveLeft();
-        } else if (this.keys['KeyD']) {
+        } else if (this.keys[keyD]) {
             this.moveRight();
 
         }
@@ -84,12 +86,12 @@ class Bubble {
      * della combinazione di tasti premuta.
      */
     updateSpeedY() {
-        if ((this.keys['KeyS'] && this.keys['KeyW']) ||
-            (this.speedY !== 0 && !(this.keys['KeyS'] || this.keys['KeyW']))) {
+        if ((this.keys[keyS] && this.keys[keyW]) ||
+            (this.speedY !== 0 && !(this.keys[keyS] || this.keys[keyW]))) {
             this.slowDownY();
-        } else if (this.keys['KeyW']) {
+        } else if (this.keys[keyW]) {
             this.moveUp();
-        } else if (this.keys['KeyS']) {
+        } else if (this.keys[keyS]) {
             this.moveDown();
         }
     }
@@ -108,12 +110,12 @@ class Bubble {
             this.keys = getRandomWASD();
             if (isOutOfXBounds === -1) {
                 this.x = this.gameArea.x + this.radius;
-                this.keys['KeyA'] = false;
-                this.keys['KeyD'] = true;
+                this.keys[keyA] = false;
+                this.keys[keyD] = true;
             } else if (isOutOfXBounds === 1) {
                 this.x = this.gameArea.x + this.gameArea.gameWidth - this.radius;
-                this.keys['KeyA'] = true;
-                this.keys['KeyD'] = false;
+                this.keys[keyA] = true;
+                this.keys[keyD] = false;
             }
         }
     }
@@ -131,12 +133,12 @@ class Bubble {
             this.keys = getRandomWASD();
             if (isOutOfYBounds === -1) {
                 this.y = this.gameArea.y + this.radius;
-                this.keys['KeyS'] = true;
-                this.keys['KeyW'] = false;
+                this.keys[keyS] = true;
+                this.keys[keyW] = false;
             } else if (isOutOfYBounds === 1) {
                 this.y = this.gameArea.y + this.gameArea.gameHeight - this.radius;
-                this.keys['KeyS'] = false;
-                this.keys['KeyW'] = true;
+                this.keys[keyS] = false;
+                this.keys[keyW] = true;
             }
         }
     }
@@ -254,7 +256,7 @@ class Bubble {
     /**
      * 
      * @param bubble bubble con cui potrebbe collidere
-     * @returns > 0 che indica la quantità di intersezione
+     * @returns {number} > 0 che indica la quantità di intersezione
      *          tra le due bolle, altrimenti >= 0 se non collidono
      */
     // > 0 se collide, <= 0 altrimenti
@@ -278,10 +280,10 @@ class Bubble {
     colliding(radiusRatio = 0, hit = 2 * this.radius) {
         let ratio = (hit / (2 * this.radius)).toFixed(2);
         this.radius -= radiusRatio;
-        if (this.radius > Bubble.getMaxRadius()) {
-            this.radius = Bubble.getMaxRadius();
+        if (this.radius > Bubble.getMaxRadius) {
+            this.radius = Bubble.getMaxRadius;
         }
-        this.maxSpeed = this.getCurrentMaxSpeed;
+        this.maxSpeed = Bubble.getCurrentMaxSpeed(this.radius);
         this.slowDownX(ratio, this.acceleration);
         this.slowDownY(ratio, this.acceleration);
     }

@@ -3,6 +3,7 @@
 // anzi meglio rappresentare il vettore spostamento come un rettangolo dato dalla somma 
 // dei quadrati che circoscrivono il cerchio e controllare se il rettangolo interseca un segmento
 
+const maxEnemyBubble = 1000;
 class Game {
     constructor() {
         this.canvas = document.getElementById("bbCanvas");
@@ -22,13 +23,13 @@ class Game {
         this.scaleToCover = 0;
         this.lastCalledTime = 0;
         this.totalEnemyBubble = 100;
-        assert(this.totalEnemyBubble < Game.getMaxEnemyBubble(), "Too many enemies bubbles");
+        assert(this.totalEnemyBubble < Game.getMaxEnemyBubble, "Too many enemies bubbles");
         this.fps = 0;
         this.delta = 0;
     }
 
-    static getMaxEnemyBubble() {
-        return 1000;
+    static get getMaxEnemyBubble() {
+        return maxEnemyBubble;
     }
 
     static createGame(background) {
@@ -84,9 +85,9 @@ class Game {
         this.mBubbleArr.sort(function (b1, b2) {
             return b1.getRadius - b2.getRadius;
         });
-        this.mBubbleArr.forEach(bubble => {
+        /*this.mBubbleArr.forEach(bubble => {
             console.log("BUBBLE NAME" + bubble.getName + " RADIUS " + bubble.getRadius);
-        });
+        });*/
         this.updateRankingUi();
     }
     
@@ -106,14 +107,32 @@ class Game {
             this.mBubbleArr.forEach(v =>
                 v.changeDirection());
         }
+        
+        let bubble;
         for (let i = 0; i < this.mBubbleArr.length; i++) {
-            let bubble = this.mBubbleArr[i];
+            bubble = this.mBubbleArr[i];
             bubble.updateSpeed();
             if (!this.mShield.checkCollision(bubble)) {
                 bubble.checkGameAreaCollision();
             }
             bubble.move();
         }
+        if (this.findCollisions()) {
+            this.updateRankingUi();
+            this.updateLifeUi();
+        }
+        this.frameCount++;
+        if (this.frameCount > this.frameMod) {
+            this.frameCount = 1;
+        }
+    }
+
+    /**
+     * 
+     * @returns {boolean} true se è stata trovata 
+     *                    una collisione, false altrimenti
+     */
+    findCollisions(){
         let find = false;
         let bubble;
         let intersectionLen;
@@ -129,33 +148,28 @@ class Game {
             }
         }
         this.bubbleKillLogic(this.mBubble);
-        if (find) {
-            this.updateRankingUi();
-            this.updateLifeUi();
-        }
-        this.frameCount++;
-        if (this.frameCount > this.frameMod) {
-            this.frameCount = 1;
-        }
+        return find;
     }
 
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        // Background color per evitare l'alpha nel canvas 
         this.ctx.fillStyle = "#9b9b9b";
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.mBackground.draw(this.ctx);
+        
         this.mBubbleArr.forEach(bubble => {
             bubble.draw(this.ctx);
         });
-        this.ctx.save();
+        
         this.mBubble.draw(this.ctx);
-        this.ctx.restore();
-
+        
         this.ctx.save();
         this.ctx.translate(this.mBackground.x, this.mBackground.y);
         this.mShield.draw(this.ctx);
         this.ctx.restore();
+        
         this.updateFpsUi();
     }
 
@@ -171,13 +185,13 @@ class Game {
      */
     bubbleKillLogic(bubble, i = -1) {
         let killed = false;
-        if (bubble.getRadius < Bubble.getMinRadius()) {
+        if (bubble.getRadius < Bubble.getMinRadius) {
             killed = true;
             switch (i) {
                 case -1:
                     this.gameEnd = true;
-                    console.log("GAME OVER " + reqId);
                     this.gameEndLogic(false);
+                    console.log("GAME OVER " + reqId);
                     break;
                 default:
                     console.log("KILL");
@@ -186,6 +200,7 @@ class Game {
                     if (this.mBubbleArr.length === 0) {
                         this.gameEnd = true;
                         this.gameEndLogic(true);
+                        console.log("GAME WIN" + reqId);
                     }
                     break;
             }
@@ -225,7 +240,7 @@ class Game {
         this.mGameUi.saveCtx();
         this.mGameUi.scaleCtx(1 / this.scaleToCover, 1 / this.scaleToCover);
         this.mGameUi.translateCtx(-this.leftRightMargin, -this.topBottomMargin);
-        this.mGameUi.drawUserLife(this.mBubble.radius - Bubble.getMinRadius());
+        this.mGameUi.drawUserLife(this.mBubble.radius - Bubble.getMinRadius);
         this.mGameUi.restoreCtx();
     }
 
@@ -288,7 +303,7 @@ class Game {
      */
     spawnBubble(i) {
         //const radius = 30;
-        const radius = getRandomInteger(Bubble.getMinRadius(),100);
+        const radius = getRandomInteger(Bubble.getMinRadius,100);
         const x = getRandomInteger(this.mBackground.x + radius, this.mBackground.x + this.mBackground.gameWidth - radius);
         const y = getRandomInteger(this.mBackground.y + radius, this.mBackground.y + this.mBackground.gameHeight - radius);
         //const x = this.mBackground.x + radius +5;
