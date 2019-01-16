@@ -1,10 +1,3 @@
-const defaultLifeHeight = 25;
-const defaultLifeWidth = 200;
-const defaultFontSize = 16;
-const winString = "Hai vinto";
-const lostString = "Hai perso";
-const reloadString = "Ricarica la pagina per giocare";
-
 class GameUi {
     constructor() {
         this.canvas = document.getElementById("uiCanvas");
@@ -26,27 +19,27 @@ class GameUi {
 
 
     static get getDefaultLifeHeight() {
-        return defaultLifeHeight;
+        return 25;
     }
 
     static get getDefaultLifeWidth() {
-        return defaultLifeWidth;
+        return 200;
     }
 
     static get getDefaultFontSize() {
-        return defaultFontSize;
+        return 16;
     }
 
     static get getWinString() {
-        return winString;
+        return "Hai vinto";
     }
 
     static get getLostString() {
-        return lostString;
+        return "Hai perso";
     }
 
     static get getReloadString() {
-        return reloadString;
+        return "Ricarica la pagina per giocare";
     }
 
     clearAll() {

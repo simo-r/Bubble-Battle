@@ -18,9 +18,17 @@ class BackgroundComponent {
     get gameHeight(){
         return this.image.height;
     }
+    
+    set setX(v){
+        this.x = v;
+    }
 
     get getX(){
         return this.x;
+    }
+    
+    set setY(v){
+        this.y = v;
     }
 
     get getY(){

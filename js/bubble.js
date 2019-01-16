@@ -1,5 +1,3 @@
-const minRadius = 20;
-const maxRadius = 300;
 class Bubble {
     constructor(x, y, radius, speedX, speedY, color, gameArea, name) {
         this.x = x;
@@ -17,11 +15,11 @@ class Bubble {
     }
 
     static get getMinRadius() {
-        return minRadius;
+        return 20;
     }
 
     static get getMaxRadius() {
-        return maxRadius;
+        return 300;
     }
 
     static getCurrentMaxSpeed(radius) {
@@ -262,9 +260,7 @@ class Bubble {
     // > 0 se collide, <= 0 altrimenti
     collideOnBubble(bubble) {
         let r = this.radius + bubble.radius;
-        let x = this.x - bubble.x;
-        let y = this.y - bubble.y;
-        return r - Math.sqrt((x * x) + (y * y));
+        return r - ShieldPoint.dist(this.x,this.y,bubble.x,bubble.y);
     }
 
     /**

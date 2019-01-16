@@ -1,6 +1,3 @@
-const maxShieldLength = 600;
-const shieldDuration = 10000; //milli-seconds
-
 class Shield {
     constructor() {
         this.shieldPoints = [];
@@ -13,11 +10,11 @@ class Shield {
     }
 
     static get getMaxShieldLength() {
-        return maxShieldLength;
+        return 600;
     }
 
     static get getShieldDuration() {
-        return shieldDuration;
+        return 10000;//milli-seconds
     }
 
     static createShield(canvas, background) {
@@ -48,7 +45,7 @@ class Shield {
         let mouseUpFun = function (e) {
             if (shield.isShieldOn || (!shield.paint)) return;
             shield.paint = false;
-            if (shield.shieldPoints.length <= 1 /* || CHECK COLLISION */) {
+            if (shield.shieldPoints.length <= 1) {
                 shield.clearOldShield();
             } else {
                 shield.isShieldOn = true;

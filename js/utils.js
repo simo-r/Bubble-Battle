@@ -47,18 +47,9 @@ function assert(cond, msg) {
  * @param collidedBubbleIndex indice dell'elemento da ri-ordinare
  */
 function sortBubbles(bubbleArr, collidedBubbleIndex) {
-    let i = 0;
-    bubbleArr.forEach(v => {
-        console.log("BUBBLE ARR POS " + i + " NAME " + v.getName + " VAL " + v.getRadius);
-    });
     const splicedElement = (bubbleArr.splice(collidedBubbleIndex, 1)[0]);
     let pos = binarySearch(bubbleArr, splicedElement, 0, bubbleArr.length - 1);
-    console.log("CURR BUBBLE NAME " + splicedElement.getName + " VAL " + splicedElement.getRadius + "NEW POSITION " + pos);
     bubbleArr.splice(pos, 0, splicedElement);
-    i = 0;
-    bubbleArr.forEach(v => {
-        console.log("BUBBLE ARR POS " + i + " NAME " + v.getName + " VAL " + v.getRadius);
-    });
 }
 
 

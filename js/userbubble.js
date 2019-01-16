@@ -32,9 +32,9 @@ class UserBubble extends Bubble {
         if (isOutOfXBounds) {
             this.speedX = 0;
             if (isOutOfXBounds === -1) {
-                this.gameArea.x = Math.floor(this.x - this.radius);
+                this.gameArea.setX = Math.floor(this.x - this.radius);
             } else if (isOutOfXBounds === 1) {
-                this.gameArea.x = Math.ceil(this.x + this.radius - this.gameArea.gameWidth);
+                this.gameArea.setX = Math.ceil(this.x + this.radius - this.gameArea.gameWidth);
             }
         }
     }
@@ -47,9 +47,9 @@ class UserBubble extends Bubble {
         if (isOutOfYBounds) {
             this.speedY = 0;
             if (isOutOfYBounds === -1) {
-                this.gameArea.y = Math.floor(this.y - this.radius);
+                this.gameArea.setY = Math.floor(this.y - this.radius);
             } else if (isOutOfYBounds === 1) {
-                this.gameArea.y = Math.ceil(this.y + this.radius - this.gameArea.gameHeight);
+                this.gameArea.setY = Math.ceil(this.y + this.radius - this.gameArea.gameHeight);
             }
         }
     }

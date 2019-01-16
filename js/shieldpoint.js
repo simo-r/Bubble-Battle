@@ -25,6 +25,10 @@ class ShieldPoint {
         return Math.sqrt(x * x + y * y);
     }
 
+    static distanceTo(p1,p2) {
+        return ShieldPoint.dist(p1.getGameX,p1.getGameY,p2.getGameX,p2.getGameY);
+    }
+
     get getX() {
         return this.x;
     }
@@ -47,10 +51,6 @@ class ShieldPoint {
 
     get getGameY() {
         return this.y - this.backgroundY;
-    }
-
-    static distanceTo(p1,p2) {
-        return ShieldPoint.dist(p1.getGameX,p1.getGameY,p2.getGameX,p2.getGameY);
     }
 
     toString() {

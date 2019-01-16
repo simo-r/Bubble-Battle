@@ -7,16 +7,12 @@ class EnemyBubble extends Bubble {
     }
 
     move() {
-        this.x += this.speedX + (this.gameArea.x - this.oldGameAreaX);
-        this.y += this.speedY + (this.gameArea.y - this.oldGameAreaY);
+        this.x += this.speedX + (this.gameArea.getX - this.oldGameAreaX);
+        this.y += this.speedY + (this.gameArea.getY - this.oldGameAreaY);
+        this.oldGameAreaX = this.gameArea.getX;
+        this.oldGameAreaY = this.gameArea.getY;
     }
-
-    draw(ctx) {
-        super.draw(ctx);
-        this.oldGameAreaX = this.gameArea.x;
-        this.oldGameAreaY = this.gameArea.y;
-    }
-
+    
     /**
      * Cambia i tasti, nonché la direzione della bubble.
      */

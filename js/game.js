@@ -1,9 +1,3 @@
-// TUTTO QUESTO FUNZIONA FINCHé MAXSPEED < RADIUS altrimenti potrebbe oltrepassare lo shield
-// per risolvere potrei fare l'intersezione tra i segmenti dello shield e il vettore spostamento
-// anzi meglio rappresentare il vettore spostamento come un rettangolo dato dalla somma 
-// dei quadrati che circoscrivono il cerchio e controllare se il rettangolo interseca un segmento
-
-const maxEnemyBubble = 1000;
 class Game {
     constructor() {
         this.canvas = document.getElementById("bbCanvas");
@@ -29,7 +23,7 @@ class Game {
     }
 
     static get getMaxEnemyBubble() {
-        return maxEnemyBubble;
+        return 1000;
     }
 
     static createGame(background) {
@@ -73,8 +67,6 @@ class Game {
         let radius = 30;
         let leftOffset = getRandomInteger(canvasHalfWidth + radius - gameWidth, canvasHalfWidth - radius);
         let topOffset = getRandomInteger(canvasHalfHeight + radius - gameHeight, canvasHalfHeight - radius);
-        //let leftOffset = canvasHalfWidth + radius - gameWidth;
-        //let topOffset = canvasHalfHeight + radius - gameHeight;
         this.mBackground = BackgroundComponent.createBackground(leftOffset, topOffset, background);
         this.mGameUi = new GameUi();
         this.mBubble = UserBubble.createUserBubble(canvasHalfWidth, canvasHalfHeight, radius, 0, 0, getRandomColor(), this.mBackground, 0);
@@ -85,12 +77,9 @@ class Game {
         this.mBubbleArr.sort(function (b1, b2) {
             return b1.getRadius - b2.getRadius;
         });
-        /*this.mBubbleArr.forEach(bubble => {
-            console.log("BUBBLE NAME" + bubble.getName + " RADIUS " + bubble.getRadius);
-        });*/
         this.updateRankingUi();
     }
-    
+
     /**
      * Muove i componenti del gioco e controlla
      * le loro posizioni
@@ -107,7 +96,6 @@ class Game {
             this.mBubbleArr.forEach(v =>
                 v.changeDirection());
         }
-        
         let bubble;
         for (let i = 0; i < this.mBubbleArr.length; i++) {
             bubble = this.mBubbleArr[i];
@@ -128,11 +116,11 @@ class Game {
     }
 
     /**
-     * 
-     * @returns {boolean} true se è stata trovata 
+     *
+     * @returns {boolean} true se è stata trovata
      *                    una collisione, false altrimenti
      */
-    findCollisions(){
+    findCollisions() {
         let find = false;
         let bubble;
         let intersectionLen;
@@ -158,18 +146,18 @@ class Game {
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.mBackground.draw(this.ctx);
-        
+
         this.mBubbleArr.forEach(bubble => {
             bubble.draw(this.ctx);
         });
-        
+
         this.mBubble.draw(this.ctx);
-        
+
         this.ctx.save();
         this.ctx.translate(this.mBackground.x, this.mBackground.y);
         this.mShield.draw(this.ctx);
         this.ctx.restore();
-        
+
         this.updateFpsUi();
     }
 
@@ -251,7 +239,7 @@ class Game {
         this.mGameUi.drawFps(this.fps);
         this.mGameUi.restoreCtx();
     }
-    
+
     /**
      * Logica resize della finesta di gioco
      */
@@ -282,19 +270,10 @@ class Game {
      * componenti e poi li disegna
      */
     gameLoop() {
-        if (!this.lastCalledTime) {
-            this.lastCalledTime = Date.now();
-            this.fps = 0;
-            return;
-        }
-        this.delta = (Date.now() - this.lastCalledTime) / 1000;
-        this.lastCalledTime = Date.now();
-        this.fps = Math.round(1 / this.delta);
-        //COLLIDING LOGIC FOR-EACH CIRCLE
+        this.computeFps();
         this.move();
         this.draw();
     }
-    
 
     /**
      * Crea una nuova bolla
@@ -303,7 +282,7 @@ class Game {
      */
     spawnBubble(i) {
         //const radius = 30;
-        const radius = getRandomInteger(Bubble.getMinRadius,100);
+        const radius = getRandomInteger(Bubble.getMinRadius, 100);
         const x = getRandomInteger(this.mBackground.x + radius, this.mBackground.x + this.mBackground.gameWidth - radius);
         const y = getRandomInteger(this.mBackground.y + radius, this.mBackground.y + this.mBackground.gameHeight - radius);
         //const x = this.mBackground.x + radius +5;
@@ -311,6 +290,17 @@ class Game {
         const speedX = 0;
         const speedY = 0;
         return new EnemyBubble(x, y, radius, speedX, speedY, getRandomColor(), this.mBackground, i);
+    }
+
+    computeFps() {
+        if (!this.lastCalledTime) {
+            this.lastCalledTime = Date.now();
+            this.fps = 0;
+            return;
+        }
+        this.delta = (Date.now() - this.lastCalledTime) / 1000;
+        this.lastCalledTime = Date.now();
+        this.fps = Math.round(1 / this.delta);
     }
 
 
